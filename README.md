@@ -1,1 +1,1 @@
-# EpamJavaFT2020Tasks
+# JavaFT2020Tasks
