@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Users</title>
+    </head>
+    <body>
+        <!--/*@thymesVar id="users" type="java.util.List"*/-->
+        <!--/*@thymesVar id="u" type="ua.testing.demo_jpa.entity.User"*/-->
+        <table>
+            <tr th:if="${users.empty}">
+                <td colspan="5"> No Books Available</td>
+            </tr>
+            <tr>
+                <th>Id</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Role</th>
+            </tr>
+            <tr th:each="u : ${users}">
+                <td><span th:text="${u.id}"/></td>
+                <td><span th:text="${u.firstName}"/></td>
+                <td><span th:text="${u.lastName}"/></td>
+                <td><span th:text="${u.email}"/></td>
+                <td><span th:text="${u.role}"/></td>
+            </tr>
+        </table>
+    </body>
+</html>
