@@ -13,9 +13,9 @@ import javax.validation.constraints.Size;
 @Builder
 @ToString
 public class UserLoginDTO {
-    @NotEmpty(message = "Email should not be empty!")
-    @Email(message = "Email should be valid!")
+    @NotEmpty(message = "{validation.error.email.empty}")
+    @Email(message = "{validation.error.email.invalid}")
     private String email;
-    @Size(min = 8, max = 40, message = "Password should be between 8 and 40 characters!")
+    @Size(min = 8, max = 40, message = "{validation.error.password.size}")
     private String password;
 }

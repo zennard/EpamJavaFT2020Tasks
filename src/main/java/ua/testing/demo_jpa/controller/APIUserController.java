@@ -4,9 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ua.testing.demo_jpa.dto.UsersDTO;
 import ua.testing.demo_jpa.service.UserService;
+
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -20,8 +23,11 @@ public class APIUserController {
     }
 
     @GetMapping()
-    public UsersDTO getAllUsers() {
-        log.info("{}", userService.getAllUsers());
-        return userService.getAllUsers();
+    public UsersDTO getAllUsers(@RequestParam(name = "limit") Optional<Integer> limit,
+                                @RequestParam(name = "page") Optional<Integer> page) {
+//        UsersDTO users = userService.getAllUsers(limit.orElse(10), page.orElse(1));
+//        log.info("{}", users);
+//        return users;
+        return null;
     }
 }
