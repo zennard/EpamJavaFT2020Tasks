@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Pager</title>
+    </head>
+    <body>
+        <nav aria-label="pager" th:fragment="pager(prevPage, nextPage, limit)">
+            <ul class="pagination">
+                <li class="page-item" th:classappend="${hasPrev}? active: disabled">
+                    <a class="page-link" th:href="@{'/users/' + '?page=' + ${prevPage} + '&size=' + ${limit}}"
+                       tabindex="-1">Previous</a>
+                </li>
+                <li class="page-item active">
+                    <a class="page-link" href="#">
+                        <span th:text="${currentPage + '/' + totalPages}"></span>
+                    </a>
+                </li>
+                <li class="page-item" th:classappend="${hasNext}? active: disabled">
+                    <a class="page-link" th:href="@{'/users/' + '?page=' + ${nextPage} + '&size=' + ${limit}}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </body>
+</html>

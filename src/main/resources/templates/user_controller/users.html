@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Users</title>
+        <link rel="stylesheet" href="/resources/css/bootstrap.min.css"
+              crossorigin="anonymous">
+    </head>
+    <body>
+        <!--/*@thymesVar id="users" type="java.util.List"*/-->
+        <!--/*@thymesVar id="u" type="ua.testing.demo_jpa.entity.User"*/-->
+
+        <header th:insert="fragments/header.html :: header(module='users')">...
+        </header>
+
+        <main class="container-md">
+            <table class="table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">First Name</th>
+                        <th scope="col">Last Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${users.empty}">
+                        <td colspan="5"> No users Available</td>
+                    </tr>
+                    <tr th:each="u : ${users}">
+                        <th scope="row"><span th:text="${u.id}"/></th>
+                        <td><span th:text="${u.firstName}"/></td>
+                        <td><span th:text="${u.lastName}"/></td>
+                        <td><span th:text="${u.email}"/></td>
+                        <td><span th:text="${u.role}"/></td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
+
+        <div class="container-sm" th:insert="fragments/pager.html :: pager(${prevPage}, ${nextPage}, ${limit})">...
+        </div>
+
+        <script src="/resources/js/jquery-3.5.1.min.js"></script>
+        <script src="/resources/js/bootstrap.bundle.min.js"
+                crossorigin="anonymous"></script>
+    </body>
+</html>
