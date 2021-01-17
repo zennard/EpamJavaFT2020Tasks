@@ -13,6 +13,7 @@ import ua.testing.demo_jpa.dto.UserRegistrationDTO;
 import ua.testing.demo_jpa.service.UserService;
 
 import javax.validation.Valid;
+import java.security.Principal;
 
 @Slf4j
 @Controller
@@ -27,7 +28,9 @@ public class RegistrationFormController {
     }
 
     @GetMapping()
-    public String getRegistrationPage(@ModelAttribute("user") UserRegistrationDTO user) {
+    public String getRegistrationPage(@ModelAttribute("user") UserRegistrationDTO user,
+                                      Principal principal) {
+        if (principal != null) return "redirect:/users?page=0&size=2";
         return REG_FORM;
     }
 
@@ -41,6 +44,6 @@ public class RegistrationFormController {
         }
         userService.saveNewUser(user);
         log.info("{}", user);
-        return "redirect:/users";
+        return "redirect:/users?page=0&size=2";
     }
 }

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import ua.testing.demo_jpa.dto.UserLoginDTO;
 import ua.testing.demo_jpa.service.UserService;
 
+import java.security.Principal;
+
 @Slf4j
 @Controller
 @RequestMapping("/login")
@@ -21,7 +23,7 @@ public class LoginFormController {
         this.userService = userService;
     }
 
-//    @ResponseStatus(HttpStatus.OK)
+    //    @ResponseStatus(HttpStatus.OK)
 //    @PostMapping()
 //    public String loginFormController(@ModelAttribute("user") @Valid UserLoginDTO user,
 //                                      BindingResult bindingResult,
@@ -45,7 +47,9 @@ public class LoginFormController {
 //    }
 
     @GetMapping()
-    public String getLoginPage(@ModelAttribute("user") UserLoginDTO user) {
+    public String getLoginPage(@ModelAttribute("user") UserLoginDTO user,
+                               Principal principal) {
+        if (principal != null) return "redirect:/users?page=0&size=2";
         return LOGIN_FORM;
     }
 
