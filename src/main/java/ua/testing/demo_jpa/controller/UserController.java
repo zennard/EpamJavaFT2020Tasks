@@ -26,7 +26,7 @@ public class UserController {
 
     @GetMapping()
     public String getUsersPage(Model model,
-                               @PageableDefault(sort = {"id"}) Pageable pageable) {
+                               @PageableDefault(sort = {"id"}, size = 2) Pageable pageable) {
         Page<User> userPage = userService.getAllUsers(pageable);
         Pageable currentPageable = userPage.getPageable();
         int currentPageNum = currentPageable.getPageNumber();

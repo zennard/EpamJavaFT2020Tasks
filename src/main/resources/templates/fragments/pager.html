@@ -9,7 +9,7 @@
             <ul class="pagination">
                 <li class="page-item" th:classappend="${hasPrev}? active: disabled">
                     <a class="page-link" th:href="@{'/users/' + '?page=' + ${prevPage} + '&size=' + ${limit}}"
-                       tabindex="-1">Previous</a>
+                       tabindex="-1" th:text="#{pager.prev.page}">Previous</a>
                 </li>
                 <li class="page-item active">
                     <a class="page-link" href="#">
@@ -17,7 +17,8 @@
                     </a>
                 </li>
                 <li class="page-item" th:classappend="${hasNext}? active: disabled">
-                    <a class="page-link" th:href="@{'/users/' + '?page=' + ${nextPage} + '&size=' + ${limit}}">Next</a>
+                    <a class="page-link" th:href="@{'/users/' + '?page=' + ${nextPage} + '&size=' + ${limit}}"
+                       th:text="#{pager.next.page}">Next</a>
                 </li>
             </ul>
         </nav>
