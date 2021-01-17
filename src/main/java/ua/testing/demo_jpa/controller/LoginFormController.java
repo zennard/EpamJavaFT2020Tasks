@@ -23,7 +23,7 @@ public class LoginFormController {
         this.userService = userService;
     }
 
-    //    @ResponseStatus(HttpStatus.OK)
+//    @ResponseStatus(HttpStatus.OK)
 //    @PostMapping()
 //    public String loginFormController(@ModelAttribute("user") @Valid UserLoginDTO user,
 //                                      BindingResult bindingResult,
