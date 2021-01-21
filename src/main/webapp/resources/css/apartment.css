@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css?family=Numans');
+
+html, body {
+    margin: 0;
+    font-family: 'Numans', sans-serif;
+    height: 100%;
+    background-image: url(https://www.berjayahotel.com/sites/default/files/hotel-category-offers/kualalumpur/offers-room-berjaya-times-square-hotel-kuala-lumpur.jpg);
+    background-color: transparent;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 100%;
+}
+
+main {
+    height: 90%;
+}
+
+article {
+    color: whitesmoke;
+    font-size: 20px;
+}
+
+.row {
+    width: 80%;
+    height: 30%;
+    margin: auto;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.reservation-form {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    text-align-last: center;
+}
+
+.card-body {
+    padding: 1rem 1rem 0rem;
+}
+
+.form-warning-text {
+    color: chocolate !important;
+}

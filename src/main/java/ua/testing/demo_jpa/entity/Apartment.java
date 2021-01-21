@@ -25,11 +25,14 @@ public class Apartment {
     private BigDecimal price;
 
     @Column(name = "beds_count", nullable = false)
-    private Integer beds_count;
+    private Integer bedsCount;
 
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
     private RoomType type;
+
+    @Column(name = "description")
+    private String description;
 
     @Column(name = "is_available")
     private boolean isAvailable;

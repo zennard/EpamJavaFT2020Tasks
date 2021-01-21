@@ -49,7 +49,7 @@ public class LoginFormController {
     @GetMapping()
     public String getLoginPage(@ModelAttribute("user") UserLoginDTO user,
                                Principal principal) {
-        if (principal != null) return "redirect:/users?page=0&size=2";
+        if (principal != null) return "redirect:/apartments";
         return LOGIN_FORM;
     }
 

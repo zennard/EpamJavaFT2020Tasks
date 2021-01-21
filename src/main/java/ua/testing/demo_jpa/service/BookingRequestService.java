@@ -2,6 +2,7 @@ package ua.testing.demo_jpa.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.testing.demo_jpa.dto.BookingRequestDTO;
@@ -13,6 +14,7 @@ import ua.testing.demo_jpa.repository.BookingRequestItemRepository;
 import ua.testing.demo_jpa.repository.BookingRequestRepository;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,8 +45,11 @@ public class BookingRequestService {
         }
     }
 
-    public Page<BookingRequest> findAllRequests() {
-        //@TODO implement
-        return null;
+    public Page<BookingRequest> findAllRequests(Pageable pageable) {
+        return bookingRequestRepository.findAll(pageable);
+    }
+
+    public Optional<BookingRequest> findRequestById(Long requestId) {
+        return bookingRequestRepository.findById(requestId);
     }
 }

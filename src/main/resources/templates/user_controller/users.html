@@ -5,6 +5,10 @@
         <title>Users</title>
         <link rel="stylesheet" href="/resources/css/bootstrap.min.css"
               crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+              integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
+              crossorigin="anonymous">
+        <link rel="stylesheet" href="/resources/css/users.css">
     </head>
     <body>
         <!--/*@thymesVar id="users" type="java.util.List"*/-->
@@ -12,6 +16,9 @@
 
         <header th:insert="fragments/header.html :: header(module='users')">...
         </header>
+
+        <div class="container-sm" th:insert="fragments/pager.html :: pager(${prevPage}, ${nextPage}, ${limit})">...
+        </div>
 
         <main class="container-md">
             <table class="table">
@@ -45,5 +52,7 @@
         <script src="/resources/js/jquery-3.5.1.min.js"></script>
         <script src="/resources/js/bootstrap.bundle.min.js"
                 crossorigin="anonymous"></script>
+        <script src="/resources/js/header.js" crossorigin="anonymous">
+        </script>
     </body>
 </html>

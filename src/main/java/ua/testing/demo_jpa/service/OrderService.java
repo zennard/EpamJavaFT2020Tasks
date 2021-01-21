@@ -1,25 +1,39 @@
 package ua.testing.demo_jpa.service;
 
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.testing.demo_jpa.dto.OrderDTO;
 import ua.testing.demo_jpa.dto.OrderItemDTO;
 import ua.testing.demo_jpa.entity.*;
 import ua.testing.demo_jpa.exceptions.OrderDeletionException;
+import ua.testing.demo_jpa.exceptions.UserNotFoundException;
 import ua.testing.demo_jpa.repository.ApartmentTimetableRepository;
 import ua.testing.demo_jpa.repository.OrderItemRepository;
 import ua.testing.demo_jpa.repository.OrderRepository;
+import ua.testing.demo_jpa.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
-@RequiredArgsConstructor
 public class OrderService {
-    private OrderRepository orderRepository;
-    private OrderItemRepository orderItemRepository;
-    private ApartmentTimetableRepository apartmentTimetableRepository;
+    private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final ApartmentTimetableRepository apartmentTimetableRepository;
+    private final UserRepository userRepository;
+
+    @Autowired
+    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository,
+                        ApartmentTimetableRepository apartmentTimetableRepository, UserRepository userRepository) {
+        this.orderRepository = orderRepository;
+        this.orderItemRepository = orderItemRepository;
+        this.apartmentTimetableRepository = apartmentTimetableRepository;
+        this.userRepository = userRepository;
+    }
 
     private static final String NOT_FOUND_RECORD = "Illegal record, record with this date doesn't exist!";
     private static final String NOT_FOUND_ITEM = "Illegal order item, item with this id doesn't exist!";
@@ -27,17 +41,24 @@ public class OrderService {
     private static final String RECORD_ALREADY_EXISTS = "Illegal record, record with this date already exists!";
 
     @Transactional
-    public void createNewOrder(OrderDTO orderDTO) {
-        //@TODO check if some rooms are already booked by someone else
-        User user = new User();
-        user.setId(orderDTO.getUserId());
+    public Long createNewOrder(OrderDTO orderDTO) {
+        orderDTO.getOrderItems().forEach(item -> {
+                    if (recordExists(
+                            orderDTO.getStartsAt(), orderDTO.getEndsAt(), item.getApartmentId())) {
+                        throw new IllegalArgumentException(RECORD_ALREADY_EXISTS);
+                    }
+                }
+        );
+        User user = userRepository.findByEmail(orderDTO.getUserEmail())
+                .orElseThrow(() -> new UserNotFoundException("User with this credentials wasn't found!"));
+
         Order order = Order
                 .builder()
                 .orderDate(LocalDateTime.now())
                 .orderStatus(OrderStatus.NEW)
                 .user(user)
                 .build();
-        orderRepository.save(order);
+        Order newOrder = orderRepository.save(order);
 
         List<OrderItemDTO> orderItems = orderDTO.getOrderItems();
         for (OrderItemDTO o : orderItems) {
@@ -63,6 +84,8 @@ public class OrderService {
                     .amount(o.getAmount())
                     .build());
         }
+
+        return newOrder.getId();
     }
 
     public void approveOrder(Long orderId) {
@@ -91,29 +114,33 @@ public class OrderService {
     }
 
     @Transactional
-
     public void deleteOrder(Long orderId) {
         if (!orderRepository.findById(orderId).isPresent()) {
             throw new OrderDeletionException(NOT_FOUND_ORDER + orderId);
         }
 
         for (OrderItem item : orderItemRepository.findAllByOrderId(orderId)) {
-            if (!recordExists(item.getStartsAt(), item.getEndsAt())) {
-                throw new OrderDeletionException(NOT_FOUND_RECORD);
-            }
-            apartmentTimetableRepository.deleteById(item.getSchedule().getId());
-
             if (!orderItemRepository.findById(item.getId()).isPresent()) {
                 throw new OrderDeletionException(NOT_FOUND_ITEM);
             }
             orderItemRepository.deleteById(item.getId());
+
+            if (!recordExists(item.getStartsAt(), item.getEndsAt(), item.getApartment().getId())) {
+                throw new OrderDeletionException(NOT_FOUND_RECORD);
+            }
+            apartmentTimetableRepository.deleteById(item.getSchedule().getId());
         }
-        orderItemRepository.deleteById(orderId);
+        orderRepository.deleteById(orderId);
     }
 
-    public boolean recordExists(LocalDateTime startsAt, LocalDateTime endsAt) {
-        List<ApartmentTimetable> schedule = apartmentTimetableRepository.findAllByStartsAtGreaterThanEqualAndEndsAtLessThanEqual(
-                startsAt, endsAt);
+    public boolean recordExists(LocalDateTime startsAt, LocalDateTime endsAt, Long apartmentId) {
+        List<ApartmentTimetable> schedule = apartmentTimetableRepository.findAllByApartmentIdAndDate(
+                startsAt, endsAt, apartmentId);
         return !schedule.isEmpty();
+    }
+
+    //@TODO
+    public List<OrderDTO> getAllNewOrders(Pageable pageable) {
+        return null;
     }
 }

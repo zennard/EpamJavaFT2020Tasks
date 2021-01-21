@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>ApartmentsPager</title>
+    </head>
+    <body>
+        <nav aria-label="pager" th:fragment="pager(prevPage, nextPage, limit)">
+            <ul class="pagination">
+                <li class="page-item" th:classappend="${hasPrev}? active: disabled">
+                    <a id="prevPageLink" class="page-link"
+                       th:href="@{'/apartments' + '?page=' + ${prevPage} + '&size=' + ${limit}}"
+                       tabindex="-1" th:text="#{pager.prev.page}">Previous</a>
+                </li>
+                <li class="page-item active">
+                    <a class="page-link" href="#">
+                        <span th:text="${currentPage + '/' + totalPages}"></span>
+                    </a>
+                </li>
+                <li class="page-item" th:classappend="${hasNext}? active: disabled">
+                    <a id="nextPageLink" class="page-link"
+                       th:href="@{'/apartments' + '?page=' + ${nextPage} + '&size=' + ${limit}}"
+                       th:text="#{pager.next.page}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </body>
+</html>

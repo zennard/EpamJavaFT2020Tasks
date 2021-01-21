@@ -28,15 +28,19 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         // @formatter:off
         http
             .authorizeRequests()
-            .antMatchers("/css/**", "/js/**", "/resources/**", "/register", "/login", "/logout")
+            .antMatchers("/css/**", "/js/**", "/resources/**",
+                    "/register", "/login", "/logout", "/",
+                    "/apartments/**", "/apartments**", "/error**")
                 .permitAll()
+            .antMatchers("/users")
+                .access("hasRole('ROLE_MANAGER')")
             .anyRequest()
                 .authenticated()
             .and()
                 .formLogin()
                 .loginPage("/login")
                 .usernameParameter("email")
-                .defaultSuccessUrl("/users")
+                .defaultSuccessUrl("/apartments")
                 .permitAll()
             .and()
                 .logout()

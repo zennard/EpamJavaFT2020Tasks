@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>DatePicker</title>
+    </head>
+    <body>
+        <form name="dateForm"
+              th:method="GET"
+              th:fragment="datePicker(currentYear, nextYear, checkIn, checkOut)">
+
+            <label for="checkIn">Check-in date:</label>
+            <input type="datetime-local" id="checkIn" name="startsAt"
+                   th:min="${currentYear} + '-01-01'" th:max="${currentYear} + '-12-31'"
+                   th:value="${checkIn}">
+            <br/>
+            <label for="checkOut">Check-out date:</label>
+            <input type="datetime-local" id="checkOut" name="endsAt"
+                   th:min="${currentYear} + '-01-01'" th:max="${nextYear} + '-12-31'"
+                   th:value="${checkOut}">
+            <br/>
+            <input id="searchBtn" type="button" class="btn btn-info" th:value="Search">
+        </form>
+    </body>
+</html>

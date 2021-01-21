@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Apartment</title>
+        <link rel="stylesheet" href="/resources/css/bootstrap.min.css"
+              crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+              integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
+              crossorigin="anonymous">
+        <link rel="stylesheet" href="/resources/css/apartment.css">
+    </head>
+    <body>
+        <header th:insert="fragments/header.html :: header(module='apartments')">...
+        </header>
+        <main class="container d-flex align-items-center">
+            <div class="row justify-content-around align-self-center">
+                <article class="col-5 text-left align-self-center" th:text="${apartment.getDescription()}">
+                </article>
+                <div class="col-3 justify-content-end align-self-center">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${apartment.getType()}">Card title</h5>
+                            <h6 class="card-subtitle mb-2 text-muted"
+                                th:text="#{apartment.label.price} + ': ' + ${apartment.getPrice()}">
+                            </h6>
+                            <p class="card-text"
+                               th:text="#{apartment.label.beds.count} + ': ' + ${apartment.getBedsCount()}"></p>
+                            <p class="card-text"
+                               th:text="#{apartment.label.status} + ': ' + ${schedule.getStatus()}"></p>
+                            <div th:switch="${schedule.getStartsAt() != null}">
+                                <div th:case="true">
+                                    <p class="card-text"
+                                       th:text="#{apartment.label.date.start} + ': ' + ${schedule.getStartsAt()}">
+                                    </p>
+                                </div>
+                                <div th:case="false">
+                                    <p class="card-text"
+                                       th:text="#{apartment.label.date.start} + ': ' + ${userStartsAt}">
+                                    </p>
+                                </div>
+                            </div>
+                            <div th:switch="${schedule.getEndsAt() != null}">
+                                <div th:case="true">
+                                    <p class="card-text"
+                                       th:text="#{apartment.label.date.end} + ': ' + ${schedule.getEndsAt()}">
+                                    </p>
+                                </div>
+                                <div th:case="false">
+                                    <p class="card-text"
+                                       th:text="#{apartment.label.date.end} + ': ' + ${userEndsAt}">
+                                    </p>
+                                </div>
+                            </div>
+                            <div th:if="${#authorization.expression('isAuthenticated()') && schedule.getStatus().toString() == 'FREE'}">
+                                <form class="reservation-form" th:method="POST"
+                                      th:action="@{/orders(apartmentId=${apartment.getId()},
+                                       startsAt=${userStartsAt}, endsAt=${userEndsAt})}">
+                                    <th:block th:each="id : ${apartmentIds}">
+                                        <input type="hidden" name="apartmentIds" th:value="${id}">
+                                    </th:block>
+                                    <input type="submit" class="btn btn-dark" th:value="#{apartment.label.reservation}">
+                                </form>
+                            </div>
+                            <div th:if="${#authorization.expression('!isAuthenticated()') && schedule.getStatus().toString() == 'FREE'}">
+                                <a class="card-link" th:href="@{/login}"
+                                   th:text="#{apartment.label.reservation.forbidden}"></a>
+                            </div>
+                            <div th:if="${schedule.getStatus().toString() != 'FREE'}">
+                                <p class="form-warning-text" th:text="#{apartment.label.reservation.locked}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <script src="/resources/js/jquery-3.5.1.min.js"></script>
+        <script src="/resources/js/bootstrap.bundle.min.js"
+                crossorigin="anonymous"></script>
+        <script src="/resources/js/header.js" crossorigin="anonymous">
+        </script>
+    </body>
+</html>

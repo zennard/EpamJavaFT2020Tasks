@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @ToString
 public class OrderDTO {
-    Long userId;
+    String userEmail;
     LocalDateTime startsAt;
     LocalDateTime endsAt;
     List<OrderItemDTO> orderItems;
