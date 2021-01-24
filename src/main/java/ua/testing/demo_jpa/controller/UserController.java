@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import ua.testing.demo_jpa.dto.PageDTO;
 import ua.testing.demo_jpa.entity.User;
 import ua.testing.demo_jpa.service.UserService;
 
@@ -29,18 +30,19 @@ public class UserController {
                                @PageableDefault(sort = {"id"}, size = 2) Pageable pageable) {
         Page<User> userPage = userService.getAllUsers(pageable);
         Pageable currentPageable = userPage.getPageable();
-        int currentPageNum = currentPageable.getPageNumber();
-        int prevPage = currentPageNum - 1;
-        int nextPage = currentPageNum + 1;
 
         model.addAttribute("users", userPage.getContent());
-        model.addAttribute("currentPage", currentPageNum + 1);
-        model.addAttribute("limit", currentPageable.getPageSize());
-        model.addAttribute("prevPage", prevPage);
-        model.addAttribute("nextPage", nextPage);
-        model.addAttribute("totalPages", userPage.getTotalPages());
-        model.addAttribute("hasPrev", userPage.hasPrevious());
-        model.addAttribute("hasNext", userPage.hasNext());
+        model.addAttribute("page", PageDTO
+                .builder()
+                .limit(currentPageable.getPageSize())
+                .prevPage(currentPageable.getPageNumber() - 1)
+                .nextPage(currentPageable.getPageNumber() + 1)
+                .currentPage(currentPageable.getPageNumber() + 1)
+                .totalPages(userPage.getTotalPages())
+                .hasPrev(userPage.hasPrevious())
+                .hasNext(userPage.hasNext())
+                .url("/users/")
+                .build());
 
         return USERS_PAGE;
     }

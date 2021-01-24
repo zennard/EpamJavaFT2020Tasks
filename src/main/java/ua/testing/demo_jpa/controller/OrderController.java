@@ -2,15 +2,17 @@ package ua.testing.demo_jpa.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import ua.testing.demo_jpa.dto.OrderDTO;
-import ua.testing.demo_jpa.dto.OrderItemDTO;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import ua.testing.demo_jpa.dto.*;
+import ua.testing.demo_jpa.entity.OrderStatus;
 import ua.testing.demo_jpa.service.ApartmentService;
 import ua.testing.demo_jpa.service.OrderService;
 
@@ -24,6 +26,8 @@ import java.util.List;
 public class OrderController {
     private final OrderService orderService;
     private final ApartmentService apartmentService;
+    public static final String ORDERS_PAGE = "order_controller/orders.html";
+    public static final String ORDERS_REDIRECT = "redirect:/orders/";
 
     @Autowired
     public OrderController(OrderService orderService, ApartmentService apartmentService) {
@@ -42,9 +46,10 @@ public class OrderController {
         List<OrderItemDTO> items = apartmentService.getAllApartmentsByIds(apartmentIds);
         log.error("{}", items);
 
-        OrderDTO orderDTO = OrderDTO
+        OrderCreationDTO orderDTO = OrderCreationDTO
                 .builder()
                 .userEmail(principal.getName())
+                .orderDate(LocalDateTime.now())
                 .startsAt(startsAt)
                 .endsAt(endsAt)
                 .orderItems(items)
@@ -55,8 +60,36 @@ public class OrderController {
     }
 
     @GetMapping
-    public String getOrdersPage() {
-        return "";
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
+    public String getOrdersPage(Model model,
+                                @PageableDefault(sort = {"id"}, size = 2) Pageable pageable) {
+        Page<OrderDTO> orderPage = orderService.getAllNewOrders(pageable);
+        Pageable currentPageable = orderPage.getPageable();
+
+        model.addAttribute("orders", orderPage.getContent());
+        model.addAttribute("page", PageDTO
+                .builder()
+                .limit(currentPageable.getPageSize())
+                .prevPage(currentPageable.getPageNumber() - 1)
+                .nextPage(currentPageable.getPageNumber() + 1)
+                .currentPage(currentPageable.getPageNumber() + 1)
+                .totalPages(orderPage.getTotalPages())
+                .hasPrev(orderPage.hasPrevious())
+                .hasNext(orderPage.hasNext())
+                .url("/orders/")
+                .build());
+
+        return ORDERS_PAGE;
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
+    public String updateOrder(@PathVariable Long id,
+                              @RequestParam("orderStatus") OrderStatus newStatus) {
+        orderService.updateOrderStatus(
+                UpdateOrderDTO.builder().id(id).status(newStatus).build()
+        );
+        return ORDERS_REDIRECT;
     }
 }
 

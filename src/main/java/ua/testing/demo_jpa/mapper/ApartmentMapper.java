@@ -30,14 +30,12 @@ public class ApartmentMapper {
             schedule = new ArrayList<>();
         }
 
-
         return Apartment
                 .builder()
                 .id(slot.getId())
                 .price(slot.getPrice())
                 .type(slot.getType())
                 .bedsCount(slot.getBedsCount())
-                .description(slot.getDescription())
                 .schedule(schedule)
                 .build();
     }

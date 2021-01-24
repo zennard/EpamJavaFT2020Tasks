@@ -19,36 +19,46 @@
                 </article>
                 <div class="col-3 justify-content-end align-self-center">
                     <div class="card" style="width: 18rem;">
-                        <div class="card-body">
-                            <h5 class="card-title" th:text="${apartment.getType()}">Card title</h5>
+                        <div class="card-body"
+                             th:with="format=${#locale.toString().equals('ua')} ? 'dd-MM-yyyy HH:mm' : 'MM-dd-yyyy HH:mm'">
+                            <h5 class="card-title"
+                                th:text="${T(ua.testing.demo_jpa.entity.Internationalization).getMessage(apartment.getType())}">
+                                Card title
+                            </h5>
                             <h6 class="card-subtitle mb-2 text-muted"
                                 th:text="#{apartment.label.price} + ': ' + ${apartment.getPrice()}">
                             </h6>
                             <p class="card-text"
                                th:text="#{apartment.label.beds.count} + ': ' + ${apartment.getBedsCount()}"></p>
                             <p class="card-text"
-                               th:text="#{apartment.label.status} + ': ' + ${schedule.getStatus()}"></p>
+                               th:text="#{apartment.label.status} + ': ' +
+                                ${T(ua.testing.demo_jpa.entity.Internationalization).getMessage(schedule.getStatus())}">
+                            </p>
                             <div th:switch="${schedule.getStartsAt() != null}">
                                 <div th:case="true">
                                     <p class="card-text"
-                                       th:text="#{apartment.label.date.start} + ': ' + ${schedule.getStartsAt()}">
+                                       th:text="#{apartment.label.date.start} + ': ' +
+                                        ${#temporals.format(schedule.getStartsAt(), format)}">
                                     </p>
                                 </div>
                                 <div th:case="false">
                                     <p class="card-text"
-                                       th:text="#{apartment.label.date.start} + ': ' + ${userStartsAt}">
+                                       th:text="#{apartment.label.date.start} + ': ' +
+                                       ${#temporals.format(userStartsAt, format)}">
                                     </p>
                                 </div>
                             </div>
                             <div th:switch="${schedule.getEndsAt() != null}">
                                 <div th:case="true">
                                     <p class="card-text"
-                                       th:text="#{apartment.label.date.end} + ': ' + ${schedule.getEndsAt()}">
+                                       th:text="#{apartment.label.date.end} + ': ' +
+                                        ${#temporals.format(schedule.getEndsAt(), format)}">
                                     </p>
                                 </div>
                                 <div th:case="false">
                                     <p class="card-text"
-                                       th:text="#{apartment.label.date.end} + ': ' + ${userEndsAt}">
+                                       th:text="#{apartment.label.date.end} + ': ' +
+                                       ${#temporals.format(userEndsAt, format)}">
                                     </p>
                                 </div>
                             </div>

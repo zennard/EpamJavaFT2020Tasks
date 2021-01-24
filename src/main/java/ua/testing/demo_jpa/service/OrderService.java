@@ -2,12 +2,17 @@ package ua.testing.demo_jpa.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ua.testing.demo_jpa.dto.OrderCreationDTO;
 import ua.testing.demo_jpa.dto.OrderDTO;
 import ua.testing.demo_jpa.dto.OrderItemDTO;
+import ua.testing.demo_jpa.dto.UpdateOrderDTO;
 import ua.testing.demo_jpa.entity.*;
+import ua.testing.demo_jpa.exceptions.EmptyOrderException;
 import ua.testing.demo_jpa.exceptions.OrderDeletionException;
 import ua.testing.demo_jpa.exceptions.UserNotFoundException;
 import ua.testing.demo_jpa.repository.ApartmentTimetableRepository;
@@ -17,6 +22,7 @@ import ua.testing.demo_jpa.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -41,7 +47,11 @@ public class OrderService {
     private static final String RECORD_ALREADY_EXISTS = "Illegal record, record with this date already exists!";
 
     @Transactional
-    public Long createNewOrder(OrderDTO orderDTO) {
+    //@TODO do in one query
+    //@TODO remove transactional, instead call method with transactional
+    public Long createNewOrder(OrderCreationDTO orderDTO) {
+
+        //@TODO remove if
         orderDTO.getOrderItems().forEach(item -> {
                     if (recordExists(
                             orderDTO.getStartsAt(), orderDTO.getEndsAt(), item.getApartmentId())) {
@@ -54,7 +64,7 @@ public class OrderService {
 
         Order order = Order
                 .builder()
-                .orderDate(LocalDateTime.now())
+                .orderDate(orderDTO.getOrderDate())
                 .orderStatus(OrderStatus.NEW)
                 .user(user)
                 .build();
@@ -88,28 +98,29 @@ public class OrderService {
         return newOrder.getId();
     }
 
-    public void approveOrder(Long orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER + orderId));
-        order.setOrderStatus(OrderStatus.APPROVED);
-        orderRepository.save(order);
+    public boolean recordExists(LocalDateTime startsAt, LocalDateTime endsAt, Long apartmentId) {
+        List<ApartmentTimetable> schedule = apartmentTimetableRepository.findAllByApartmentIdAndDate(
+                startsAt, endsAt, apartmentId);
+        return !schedule.isEmpty();
     }
 
     @Transactional
-    public void payForOrder(Long orderId) {
-        //@TODO pay for order with money
-
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER + orderId));
-        order.setOrderStatus(OrderStatus.PAID);
+    public void updateOrderStatus(UpdateOrderDTO newOrderDTO) {
+        Order order = orderRepository.findById(newOrderDTO.getId())
+                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER + newOrderDTO.getId()));
+        order.setOrderStatus(newOrderDTO.getStatus());
         orderRepository.save(order);
 
-        List<OrderItem> orderItems = orderItemRepository.findAllByOrderId(orderId);
-        for (OrderItem item : orderItems) {
-            ApartmentTimetable schedule = apartmentTimetableRepository.findById(item.getApartment().getId())
-                    .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_RECORD));
-            schedule.setStatus(RoomStatus.PAID);
-            apartmentTimetableRepository.save(schedule);
+        if (newOrderDTO.getStatus().equals(OrderStatus.PAID)) {
+            //@TODO pay for order with money
+
+            List<OrderItem> orderItems = orderItemRepository.findAllByOrderId(newOrderDTO.getId());
+            for (OrderItem item : orderItems) {
+                ApartmentTimetable schedule = apartmentTimetableRepository.findById(item.getApartment().getId())
+                        .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_RECORD));
+                schedule.setStatus(RoomStatus.PAID);
+                apartmentTimetableRepository.save(schedule);
+            }
         }
     }
 
@@ -133,14 +144,44 @@ public class OrderService {
         orderRepository.deleteById(orderId);
     }
 
-    public boolean recordExists(LocalDateTime startsAt, LocalDateTime endsAt, Long apartmentId) {
-        List<ApartmentTimetable> schedule = apartmentTimetableRepository.findAllByApartmentIdAndDate(
-                startsAt, endsAt, apartmentId);
-        return !schedule.isEmpty();
-    }
-
     //@TODO
-    public List<OrderDTO> getAllNewOrders(Pageable pageable) {
-        return null;
+    public Page<OrderDTO> getAllNewOrders(Pageable pageable) {
+        Page<Order> ordersPage = orderRepository.findAllByOrderStatus(OrderStatus.NEW, pageable);
+
+        List<OrderDTO> ordersDTO = ordersPage
+                .stream()
+                .map(o -> {
+                            List<OrderItem> items = orderItemRepository.findAllByOrderId(o.getId());
+                            if (items.isEmpty()) {
+                                throw new EmptyOrderException("Cannot create order without order items!");
+                            }
+
+                            List<OrderItemDTO> itemsDTO = items
+                                    .stream()
+                                    .map(item -> OrderItemDTO
+                                            .builder()
+                                            .amount(item.getAmount())
+                                            .price(item.getPrice())
+                                            .apartmentId(item.getApartment().getId())
+                                            .build()
+                                    )
+                                    .collect(Collectors.toList());
+
+
+                            return OrderDTO
+                                    .builder()
+                                    .id(o.getId())
+                                    .userEmail(o.getUser().getEmail())
+                                    .orderDate(o.getOrderDate())
+                                    .startsAt(items.get(0).getStartsAt())
+                                    .endsAt(items.get(0).getEndsAt())
+                                    .orderItems(itemsDTO)
+                                    .build();
+                        }
+                )
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(ordersDTO, ordersPage.getPageable(),
+                ordersPage.getTotalElements());
     }
 }

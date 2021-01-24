@@ -1,46 +1,65 @@
 package ua.testing.demo_jpa.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ua.testing.demo_jpa.dto.OrderItemDTO;
-import ua.testing.demo_jpa.entity.Apartment;
-import ua.testing.demo_jpa.entity.ApartmentTimeSlot;
-import ua.testing.demo_jpa.entity.ApartmentTimetable;
-import ua.testing.demo_jpa.entity.RoomStatus;
+import ua.testing.demo_jpa.entity.*;
 import ua.testing.demo_jpa.exceptions.ApartmentNotFoundException;
+import ua.testing.demo_jpa.exceptions.DescriptionNotFoundException;
 import ua.testing.demo_jpa.exceptions.IllegalDateException;
 import ua.testing.demo_jpa.mapper.ApartmentMapper;
+import ua.testing.demo_jpa.repository.ApartmentDescriptionRepository;
 import ua.testing.demo_jpa.repository.ApartmentRepository;
 import ua.testing.demo_jpa.repository.ApartmentTimetableRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ApartmentService {
     private final ApartmentRepository apartmentRepository;
     private final ApartmentTimetableRepository apartmentTimetableRepository;
+    private final ApartmentDescriptionRepository apartmentDescriptionRepository;
+    //@TODO move to some constabts class
+    @Value("${apartment.check.in.time}")
+    private Integer checkInHours;
+    @Value("${apartment.check.out.time}")
+    private Integer checkOutHours;
+    private static final int SETTLEMENT_MINUTES = 0;
+
+    @Autowired
+    public ApartmentService(ApartmentRepository apartmentRepository, ApartmentTimetableRepository apartmentTimetableRepository, ApartmentDescriptionRepository apartmentDescriptionRepository) {
+        this.apartmentRepository = apartmentRepository;
+        this.apartmentTimetableRepository = apartmentTimetableRepository;
+        this.apartmentDescriptionRepository = apartmentDescriptionRepository;
+    }
 
     public Page<Apartment> getAllApartments(Pageable pageable) {
         return apartmentRepository.findAll(pageable);
     }
 
     public Page<Apartment> getAllAvailableApartmentsByDate(Pageable pageable,
-                                                           LocalDateTime startsAt, LocalDateTime endsAt) {
+                                                           LocalDate startsAt, LocalDate endsAt) {
         if (endsAt.isBefore(startsAt)) throw new IllegalDateException("Check out time cannot go before check-in!");
 
-        Page<ApartmentTimeSlot> apartmentsPage = apartmentRepository.findAllAvailableByDate(startsAt, endsAt, pageable);
-        List<Apartment> parsedApartments = new ArrayList<>();
+        LocalDateTime checkIn = LocalDateTime.of(startsAt, LocalTime.of(checkInHours, SETTLEMENT_MINUTES));
+        LocalDateTime checkOut = LocalDateTime.of(endsAt, LocalTime.of(checkOutHours, SETTLEMENT_MINUTES));
 
+        Page<ApartmentTimeSlot> apartmentsPage = apartmentRepository.findAllAvailableByDate(checkIn, checkOut, pageable);
+
+        List<Apartment> parsedApartments = new ArrayList<>();
         for (ApartmentTimeSlot slot : apartmentsPage.getContent()) {
             Apartment a = ApartmentMapper.map(slot);
 
@@ -53,8 +72,8 @@ public class ApartmentService {
                 schedule.add(ApartmentTimetable
                         .builder()
                         .status(RoomStatus.FREE)
-                        .startsAt(startsAt)
-                        .endsAt(endsAt)
+                        .startsAt(checkIn)
+                        .endsAt(checkOut)
                         .build());
             }
 
@@ -65,21 +84,30 @@ public class ApartmentService {
                 apartmentsPage.getTotalElements());
     }
 
-    public Apartment getApartmentByIdAndDate(Long id, LocalDateTime startsAt, LocalDateTime endsAt) {
+    public Apartment getApartmentByIdAndDate(Long id, LocalDate startsAt, LocalDate endsAt) {
         //@TODO rewrite
         Apartment apartment = apartmentRepository.findById(id)
                 .orElseThrow(() -> new ApartmentNotFoundException("Cannot find apartment with id " + id));
 
+        LocalDateTime checkIn = LocalDateTime.of(startsAt, LocalTime.of(checkInHours, SETTLEMENT_MINUTES));
+        LocalDateTime checkOut = LocalDateTime.of(endsAt, LocalTime.of(checkOutHours, SETTLEMENT_MINUTES));
+
         List<ApartmentTimetable> schedule = apartmentTimetableRepository
-                .findAllByApartmentIdAndDate(startsAt, endsAt, apartment.getId());
+                .findAllByApartmentIdAndDate(checkIn, checkOut, apartment.getId());
         if (schedule.isEmpty()) {
             schedule.add(ApartmentTimetable
                     .builder()
                     .status(RoomStatus.FREE)
                     .build());
         }
+        log.error("{}", schedule);
+
+        ApartmentDescription description = apartmentDescriptionRepository.findApartmentDescriptionByApartmentIdAndLang(id,
+                Language.valueOf(Internationalization.getCurrentLocale().toString().toUpperCase(Locale.ROOT)))
+                .orElseThrow(() -> new DescriptionNotFoundException("Cannot find description for apartment with id " + id));
 
         apartment.setSchedule(schedule);
+        apartment.setDescription(description.getDescription());
 
         return apartment;
     }

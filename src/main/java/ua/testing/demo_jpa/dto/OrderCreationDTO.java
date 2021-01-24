@@ -11,8 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @ToString
-public class OrderDTO {
-    Long id;
+public class OrderCreationDTO {
     String userEmail;
     LocalDateTime orderDate;
     LocalDateTime startsAt;

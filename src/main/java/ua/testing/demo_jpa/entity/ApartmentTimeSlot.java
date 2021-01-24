@@ -19,6 +19,4 @@ public interface ApartmentTimeSlot {
     LocalDateTime getEndsAt();
 
     RoomStatus getStatus();
-
-    String getDescription();
 }

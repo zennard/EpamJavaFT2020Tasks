@@ -46,7 +46,7 @@
                                        class="form-control"
                                        th:field="*{email}"
                                        id="inputEmail"
-                                       placeholder="Email"
+                                       th:placeholder="#{input.placeholder.email}"
                                        required
                                 >
                                 <div class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">
@@ -63,7 +63,7 @@
                                        class="form-control"
                                        th:field="*{password}"
                                        id="inputPassword"
-                                       placeholder="Password"
+                                       th:placeholder="#{input.placeholder.password}"
                                        required
                                 >
                                 <div class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">
@@ -77,8 +77,9 @@
                         </form>
                     </div>
                     <div class="card-footer">
-                        <div class="d-flex justify-self-center links">
-                            Don't have an account?<a th:href="@{/register}" class="text-light">Register</a>
+                        <div class="d-flex justify-self-center links" th:inline="text">
+                            [[#{login.label.registration}]]
+                            <a th:href="@{/register}" class="text-light" th:text="#{button.register}">Register</a>
                         </div>
                     </div>
                 </div>

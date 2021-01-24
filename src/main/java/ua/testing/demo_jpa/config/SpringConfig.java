@@ -1,6 +1,7 @@
 package ua.testing.demo_jpa.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -16,6 +18,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import java.util.Collections;
 import java.util.Locale;
 
 @Configuration
@@ -29,7 +32,7 @@ public class SpringConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public LocaleResolver localeResolver() {
+    public static LocaleResolver localeResolver() {
         SessionLocaleResolver slr = new SessionLocaleResolver();
         slr.setDefaultLocale(Locale.ENGLISH);
         return slr;
@@ -67,4 +70,12 @@ public class SpringConfig implements WebMvcConfigurer {
                 .addResourceHandler("/resources/**")
                 .addResourceLocations("/resources/");
     }
+
+    @Bean
+    public FilterRegistrationBean hiddenHttpMethodFilter() {
+        FilterRegistrationBean filterRegBean = new FilterRegistrationBean(new HiddenHttpMethodFilter());
+        filterRegBean.setUrlPatterns(Collections.singletonList("/*"));
+        return filterRegBean;
+    }
+
 }

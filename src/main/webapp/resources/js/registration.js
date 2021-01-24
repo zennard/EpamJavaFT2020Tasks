@@ -1,19 +1,11 @@
-angular.module("registration_form", [])
-    .controller("RegistrationCtrl", function ($scope, $http) {
-        $scope.auth = {};
-        $scope.sendForm = function (auth) {
-            $http({
-                method: "POST",
-                url: "/register",
-                data: $.param(auth),
-                headers: {"Content-Type": "application/x-www-form-urlencoded"}
-            }).then(
-                function (data) {
-                    window.alert("User was registered!");
-                },
-                function (error) {
-                    window.alert("Something went wrong during registration!");
-                }
-            );
-        }
-    });
+const check = function () {
+    if (document.getElementById('inputPassword').value ==
+        document.getElementById('confirmPassword').value) {
+        document.getElementById('message').innerHTML = '';
+        document.getElementById('submit').disabled = false;
+    } else {
+        document.getElementById('message').style.color = 'red';
+        document.getElementById('message').innerHTML = 'Not matching';
+        document.getElementById('submit').disabled = true;
+    }
+}

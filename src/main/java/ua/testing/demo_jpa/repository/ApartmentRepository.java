@@ -17,7 +17,7 @@ public interface ApartmentRepository extends JpaRepository<Apartment, Long> {
 
     @Query(value = "SELECT id, beds_count AS bedsCount," +
             " price, type, starts_at AS startsAt," +
-            " ends_at AS endsAt, status, description, " +
+            " ends_at AS endsAt, status, " +
             " slotId " +
             "FROM apartment ap " +
             "LEFT JOIN " +
@@ -31,7 +31,7 @@ public interface ApartmentRepository extends JpaRepository<Apartment, Long> {
             "       t.ends_at BETWEEN :startsAt AND :endsAt" +
             "     )" +
             ") AS r " +
-            "ON ap.id = r.apartment_id",
+            "ON ap.id = r.apartment_id ",
             countQuery = "SELECT COUNT(*) " +
                     "FROM apartment ap " +
                     "LEFT JOIN " +
@@ -45,7 +45,8 @@ public interface ApartmentRepository extends JpaRepository<Apartment, Long> {
                     "       t.ends_at BETWEEN :startsAt AND :endsAt" +
                     "     )" +
                     ") AS r " +
-                    "ON ap.id = r.apartment_id",
+                    "ON ap.id = r.apartment_id ",
             nativeQuery = true)
-    Page<ApartmentTimeSlot> findAllAvailableByDate(LocalDateTime startsAt, LocalDateTime endsAt, Pageable pageable);
+    Page<ApartmentTimeSlot> findAllAvailableByDate(LocalDateTime startsAt, LocalDateTime endsAt,
+                                                   Pageable pageable);
 }

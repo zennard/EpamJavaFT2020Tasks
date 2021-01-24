@@ -18,7 +18,7 @@ public interface ApartmentTimetableRepository extends JpaRepository<ApartmentTim
             "WHERE t.apartment.id = :apartmentId AND (" +
             " t.startsAt BETWEEN :startsAt AND :endsAt OR " +
             " t.endsAt BETWEEN :startsAt AND :endsAt OR " +
-            " t.startsAt <= :startsAt AND t.endsAt >= :endsAt" +
+            " t.startsAt <= :startsAt AND t.endsAt >= :endsAt " +
             ")"
     )
     List<ApartmentTimetable> findAllByApartmentIdAndDate(

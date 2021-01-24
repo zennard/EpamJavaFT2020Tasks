@@ -1,8 +1,7 @@
 package ua.testing.demo_jpa.dto;
 
 import lombok.*;
-
-import java.util.List;
+import ua.testing.demo_jpa.entity.OrderStatus;
 
 @Getter
 @Setter
@@ -10,6 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @ToString
-public class OrdersDTO {
-    List<OrderDTO> orders;
+public class UpdateOrderDTO {
+    Long id;
+    OrderStatus status;
 }

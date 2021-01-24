@@ -9,17 +9,23 @@
               th:method="GET"
               th:fragment="datePicker(currentYear, nextYear, checkIn, checkOut)">
 
-            <label for="checkIn">Check-in date:</label>
-            <input type="datetime-local" id="checkIn" name="startsAt"
+            <label for="checkIn" th:text="#{datepicker.check.in}">Check-in date:</label>
+            <input class="date-input" type="date" id="checkIn" name="startsAt"
                    th:min="${currentYear} + '-01-01'" th:max="${currentYear} + '-12-31'"
-                   th:value="${checkIn}">
+                   th:attr="data-date=${checkIn},
+                    data-date-format=${#locale.toString().equals('ua')}?'DD-MM-YYYY':'MM-DD-YYYY'"
+                   th:value="${checkIn}"
+                   data-date="" data-date-format="DD MMMM YYYY">
             <br/>
-            <label for="checkOut">Check-out date:</label>
-            <input type="datetime-local" id="checkOut" name="endsAt"
+            <label for="checkOut" th:text="#{datepicker.check.out}">Check-out date:</label>
+            <input class="date-input" type="date" id="checkOut" name="endsAt"
                    th:min="${currentYear} + '-01-01'" th:max="${nextYear} + '-12-31'"
-                   th:value="${checkOut}">
+                   th:attr="data-date=${checkOut},
+                    data-date-format=${#locale.toString().equals('ua')}?'DD-MM-YYYY':'MM-DD-YYYY'"
+                   th:value="${checkOut}"
+                   data-date="">
             <br/>
-            <input id="searchBtn" type="button" class="btn btn-info" th:value="Search">
+            <input id="searchBtn" type="button" class="btn btn-info" th:value="#{datepicker.button.search}">
         </form>
     </body>
 </html>

@@ -9,70 +9,94 @@
               integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
               crossorigin="anonymous">
         <link rel="stylesheet" href="/resources/css/apartments.css">
+        <link rel="stylesheet" href="/resources/css/datepicker.css">
     </head>
     <body>
         <header th:insert="fragments/header.html :: header(module='apartments')">...
         </header>
 
-        <div class="container-sm" th:insert="fragments/datepicker.html :: datePicker(
+        <div class="page-container">
+            <div class="container-sm" th:insert="fragments/datepicker.html :: datePicker(
         ${currentYear}, ${nextYear}, ${checkIn}, ${checkOut})">...
-        </div>
+            </div>
 
-        <main class="container-md">
-            <table class="table">
-                <thead class="thead-dark">
-                    <tr>
-                        <th scope="col">ApartmentId</th>
-                        <th scope="col">StartsAt</th>
-                        <th scope="col">EndsAt</th>
-                        <th scope="col">Type</th>
-                        <th scope="col">BedsCount</th>
-                        <th scope="col">Current Status</th>
-                        <th scope="col">Book this apartment
-                        </th>
-                    </tr>
-                </thead>
-                <tbody th:if="${apartments.empty}">
-                    <tr>
-                        <td colspan="6"> No apartments Available</td>
-                    </tr>
-                </tbody>
-                <tbody>
-                    <th:block th:each="a : ${apartments}">
-                        <th:block th:each="time_slot : ${a.getSchedule()}">
-                            <tr>
-                                <th scope="row"><span th:text="${a.id}"/></th>
-                                <td><span th:text="${time_slot.getStartsAt()}"/></td>
-                                <td><span th:text="${time_slot.getEndsAt()}"/></td>
-                                <td><span th:text="${a.getType()}"/></td>
-                                <td><span th:text="${a.getBedsCount()}"/></td>
-                                <td><span th:text="${time_slot.getStatus()}"/></td>
-                                <td>
-                                    <button type="button" class="btn btn-success" th:text="#{apartments.buttons.book}"
-                                            th:action="@{/apartments/{id}(id=${a.id}, slotId=${time_slot.getId()})}"
-                                            onclick="onApartmentClick()">
-                                        Success
-                                    </button>
-                                </td>
-                            </tr>
+            <main class="container-md">
+                <table class="table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col" th:text="#{apartments.label.apartment.id}">ApartmentId</th>
+                            <th scope="col" th:text="#{apartments.label.check.in}">StartsAt</th>
+                            <th scope="col" th:text="#{apartments.label.check.out}">EndsAt</th>
+                            <th scope="col" th:text="#{apartments.label.type}">Type</th>
+                            <th scope="col" th:text="#{apartments.label.beds.count}">BedsCount</th>
+                            <th scope="col" th:text="#{apartments.label.status}">Current Status</th>
+                            <th scope="col" th:text="#{apartments.label.book}">Book this apartment
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody th:if="${apartments.empty}">
+                        <tr>
+                            <td colspan="6" th:text="#{apartments.label.empty}"> No apartments Available</td>
+                        </tr>
+                    </tbody>
+                    <tbody>
+                        <th:block th:each="a : ${apartments}">
+                            <th:block th:each="time_slot : ${a.getSchedule()}">
+                                <tr>
+                                    <th scope="row"><span th:text="${a.id}"/></th>
+                                    <th:block th:if="${#locale.toString().equals('en')}">
+                                        <td><span
+                                                th:text="${#temporals.format(time_slot.getStartsAt(), 'MM-dd-yyyy HH:mm')}"/>
+                                        </td>
+                                        <td><span
+                                                th:text="${#temporals.format(time_slot.getEndsAt(), 'MM-dd-yyyy HH:mm')}"/>
+                                        </td>
+                                    </th:block>
+                                    <th:block th:if="${#locale.toString().equals('ua')}">
+                                        <td><span
+                                                th:text="${#temporals.format(time_slot.getStartsAt(), 'dd-MM-yyyy HH:mm')}"/>
+                                        </td>
+                                        <td><span
+                                                th:text="${#temporals.format(time_slot.getEndsAt(), 'dd-MM-yyyy HH:mm')}"/>
+                                        </td>
+                                    </th:block>
+                                    <td>
+                                        <span th:text="${T(ua.testing.demo_jpa.entity.Internationalization).getMessage(a.getType())}"/>
+                                    </td>
+                                    <td><span th:text="${a.getBedsCount()}"/></td>
+                                    <td>
+                                        <span th:text="${T(ua.testing.demo_jpa.entity.Internationalization).getMessage(time_slot.getStatus())}"/>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-success"
+                                                th:text="#{apartments.buttons.book}"
+                                                th:action="@{/apartments/{id}(id=${a.id}, slotId=${time_slot.getId()})}"
+                                                onclick="onApartmentClick()">
+                                            Success
+                                        </button>
+                                    </td>
+                                </tr>
+                            </th:block>
                         </th:block>
-                    </th:block>
-                </tbody>
-            </table>
-        </main>
+                    </tbody>
+                </table>
+            </main>
 
-        <div class="container-sm"
-             th:insert="fragments/apartmentsPager.html :: pager(${prevPage}, ${nextPage}, ${limit})">...
+            <div class="container-sm"
+                 th:insert="fragments/pager.html :: pager(${page})">...
+            </div>
         </div>
 
         <script src="/resources/js/jquery-3.5.1.min.js"></script>
         <script src="/resources/js/bootstrap.bundle.min.js"
                 crossorigin="anonymous"></script>
-        <script src="/resources/js/datepicker.js">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js" crossorigin="anonymous">
         </script>
         <script src="/resources/js/apartments.js">
         </script>
         <script src="/resources/js/header.js" crossorigin="anonymous">
+        </script>
+        <script src="/resources/js/datepicker.js">
         </script>
     </body>
 </html>

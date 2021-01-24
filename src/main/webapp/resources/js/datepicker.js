@@ -19,10 +19,15 @@ onDateChange(checkInInput, 'startsAt');
 onDateChange(checkOutInput, 'endsAt');
 onButtonClick(searchBtn);
 
+updateDateValue(checkInInput);
+updateDateValue(checkOutInput);
+
 function onDateChange(elem, param) {
     elem.onchange = function (e) {
         const value = e.target.value;
         const url = new URL(location.href);
+
+        updateDateValue(e.target);
 
         const search_params = url.searchParams;
         search_params.set(param, value);
@@ -30,11 +35,6 @@ function onDateChange(elem, param) {
 
         window.history.pushState("s", "", `${url.toString()}`);
         resultUrl.searchParams.set(param, value);
-
-        // prevLinkUrl.searchParams.set(param, value);
-        // nextLinkUrl.searchParams.set(param, value);
-        // prevLink.href = prevLinkUrl.toString();
-        // nextLink.href = nextLinkUrl.toString();
     }
 }
 
@@ -74,4 +74,9 @@ function initializeNextLink() {
         nextLinkUrl.searchParams.set('endsAt', endsAt);
     }
     nextLink.href = nextLinkUrl.toString();
+}
+
+function updateDateValue(elem) {
+    elem.setAttribute("data-date", moment(elem.value, "YYYY-MM-DD")
+        .format(elem.getAttribute("data-date-format")));
 }

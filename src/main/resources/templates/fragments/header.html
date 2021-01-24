@@ -37,6 +37,13 @@
                                 Users
                             </a>
                         </li>
+                        <li class="nav-item" th:if="${#authorization.expression('hasRole(''ROLE_MANAGER'')')}">
+                            <a class="nav-link" href="#" th:href="@{/orders?page=0&size=2}"
+                               th:classappend="${module == 'orders' ? 'active' : ''}"
+                               th:text="#{navigation.section.orders}">
+                                Orders
+                            </a>
+                        </li>
                     </ul>
                 </div>
 
