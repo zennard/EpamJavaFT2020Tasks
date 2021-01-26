@@ -9,12 +9,12 @@ import lombok.*;
 @Builder
 @ToString
 public class PageDTO {
-    Integer limit;
-    Integer prevPage;
-    Integer nextPage;
-    Integer currentPage;
-    Integer totalPages;
-    boolean hasNext;
-    boolean hasPrev;
-    String url;
+    private Integer limit;
+    private Integer prevPage;
+    private Integer nextPage;
+    private Integer currentPage;
+    private Integer totalPages;
+    private boolean hasNext;
+    private boolean hasPrev;
+    private String url;
 }

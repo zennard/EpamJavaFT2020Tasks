@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import ua.testing.demo_jpa.dto.UserRegistrationDTO;
-import ua.testing.demo_jpa.exceptions.*;
+import ua.testing.demo_jpa.exceptions.ApartmentNotFoundException;
+import ua.testing.demo_jpa.exceptions.DescriptionNotFoundException;
+import ua.testing.demo_jpa.exceptions.IllegalEmailException;
+import ua.testing.demo_jpa.exceptions.WrongTimetableIdException;
 
 @Slf4j
 @ControllerAdvice
@@ -42,12 +45,6 @@ public class ErrorController implements org.springframework.boot.web.servlet.err
         model.addAttribute("error", "email");
         model.addAttribute("user", new UserRegistrationDTO());
         return "registration_form_controller/registration_form.html";
-    }
-
-    @ExceptionHandler(OrderDeletionException.class)
-    public String handleOrderDeletionException(OrderDeletionException ex) {
-        log.error(ex.getMessage());
-        return ERROR_PAGE;
     }
 
     @ExceptionHandler(ApartmentNotFoundException.class)

@@ -1,7 +1,7 @@
 package ua.testing.demo_jpa.dto;
 
 import lombok.*;
-import ua.testing.demo_jpa.entity.User;
+import ua.testing.demo_jpa.entity.Apartment;
 
 import java.util.List;
 
@@ -11,7 +11,8 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @ToString
-public class UsersDTO {
-    private List<User> users;
-    private Integer totalPages;
+public class ApartmentPageContextDTO {
+    List<Apartment> apartments;
+    PageDTO page;
+    DateDTO date;
 }

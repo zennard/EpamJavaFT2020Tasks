@@ -7,22 +7,22 @@
     <body>
         <form name="dateForm"
               th:method="GET"
-              th:fragment="datePicker(currentYear, nextYear, checkIn, checkOut)">
+              th:fragment="datePicker(date)">
 
             <label for="checkIn" th:text="#{datepicker.check.in}">Check-in date:</label>
             <input class="date-input" type="date" id="checkIn" name="startsAt"
-                   th:min="${currentYear} + '-01-01'" th:max="${currentYear} + '-12-31'"
-                   th:attr="data-date=${checkIn},
+                   th:min="${date.prevYear} + '-01-01'" th:max="${date.nextYear} + '-12-31'"
+                   th:attr="data-date=${date.checkIn},
                     data-date-format=${#locale.toString().equals('ua')}?'DD-MM-YYYY':'MM-DD-YYYY'"
-                   th:value="${checkIn}"
+                   th:value="${date.checkIn}"
                    data-date="" data-date-format="DD MMMM YYYY">
             <br/>
             <label for="checkOut" th:text="#{datepicker.check.out}">Check-out date:</label>
             <input class="date-input" type="date" id="checkOut" name="endsAt"
-                   th:min="${currentYear} + '-01-01'" th:max="${nextYear} + '-12-31'"
-                   th:attr="data-date=${checkOut},
+                   th:min="${date.prevYear} + '-01-01'" th:max="${date.nextYear} + '-12-31'"
+                   th:attr="data-date=${date.checkOut},
                     data-date-format=${#locale.toString().equals('ua')}?'DD-MM-YYYY':'MM-DD-YYYY'"
-                   th:value="${checkOut}"
+                   th:value="${date.checkOut}"
                    data-date="">
             <br/>
             <input id="searchBtn" type="button" class="btn btn-info" th:value="#{datepicker.button.search}">

@@ -1,4 +1,4 @@
-package ua.testing.demo_jpa.entity;
+package ua.testing.demo_jpa.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -14,7 +14,7 @@ public class Internationalization {
     }
 
     public static String getMessage(String key) {
-        log.error("{}", LocaleContextHolder.getLocale());
+        log.info("{}", LocaleContextHolder.getLocale());
 
         ResourceBundle bundle = ResourceBundle.getBundle("messages/messages",
                 getCurrentLocale());
@@ -26,9 +26,9 @@ public class Internationalization {
     }
 
     public static String getMessage(Enum<?> enumVal) {
-        log.error("{}", enumVal);
+        log.info("{}", enumVal);
         String key = enumVal.getClass().getSimpleName().toLowerCase() + '.' + enumVal.name().toLowerCase();
-        log.error("{}", key);
+        log.info("{}", key);
         return getMessage(key);
     }
 

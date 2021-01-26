@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ua.testing.demo_jpa.entity.Apartment;
-import ua.testing.demo_jpa.entity.ApartmentTimeSlot;
+import ua.testing.demo_jpa.entity.ApartmentTimeSlotView;
 
 import java.time.LocalDateTime;
 
@@ -47,6 +47,6 @@ public interface ApartmentRepository extends JpaRepository<Apartment, Long> {
                     ") AS r " +
                     "ON ap.id = r.apartment_id ",
             nativeQuery = true)
-    Page<ApartmentTimeSlot> findAllAvailableByDate(LocalDateTime startsAt, LocalDateTime endsAt,
-                                                   Pageable pageable);
+    Page<ApartmentTimeSlotView> findAllAvailableByDate(LocalDateTime startsAt, LocalDateTime endsAt,
+                                                       Pageable pageable);
 }

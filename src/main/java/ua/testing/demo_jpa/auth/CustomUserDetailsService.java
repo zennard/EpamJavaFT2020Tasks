@@ -1,4 +1,4 @@
-package ua.testing.demo_jpa.service;
+package ua.testing.demo_jpa.auth;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +7,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import ua.testing.demo_jpa.entity.User;
-import ua.testing.demo_jpa.entity.UserPrincipal;
 import ua.testing.demo_jpa.exceptions.EmailNotFoundException;
 import ua.testing.demo_jpa.repository.UserRepository;
 

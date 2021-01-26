@@ -1,7 +1,8 @@
-package ua.testing.demo_jpa.entity;
+package ua.testing.demo_jpa.auth;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import ua.testing.demo_jpa.entity.User;
 
 import java.util.ArrayList;
 import java.util.Collection;

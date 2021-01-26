@@ -6,7 +6,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import ua.testing.demo_jpa.entity.ApartmentTimeSlot;
+import ua.testing.demo_jpa.entity.ApartmentTimeSlotView;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,10 +21,10 @@ class ApartmentRepositoryTest {
     @Test
     void shouldFindAllByDate() {
         LocalDateTime date = LocalDateTime.of(2021, 1, 15, 13, 0);
-        Page<ApartmentTimeSlot> apartmentsPage = repository.findAllAvailableByDate(date,
+        Page<ApartmentTimeSlotView> apartmentsPage = repository.findAllAvailableByDate(date,
                 date.plusDays(2),
                 PageRequest.of(0, 10));
-        List<ApartmentTimeSlot> apartments = apartmentsPage.getContent();
+        List<ApartmentTimeSlotView> apartments = apartmentsPage.getContent();
         System.err.println(apartments);
         if (!apartments.isEmpty()) {
             System.err.println(apartments.get(0));

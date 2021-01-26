@@ -1,8 +1,6 @@
 package ua.testing.demo_jpa.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,14 +21,7 @@ import java.util.Locale;
 
 @Configuration
 @EnableWebMvc
-public class SpringConfig implements WebMvcConfigurer {
-    private final ApplicationContext appContext;
-
-    @Autowired
-    public SpringConfig(ApplicationContext appContext) {
-        this.appContext = appContext;
-    }
-
+public class WebConfig implements WebMvcConfigurer {
     @Bean
     public static LocaleResolver localeResolver() {
         SessionLocaleResolver slr = new SessionLocaleResolver();

@@ -26,8 +26,7 @@ public class BookingRequestService {
     public void saveRequest(BookingRequestDTO bookingRequestDTO) {
         User user = new User();
         user.setId(bookingRequestDTO.getUserId());
-        BookingRequest request = BookingRequest
-                .builder()
+        BookingRequest request = BookingRequest.builder()
                 .startsAt(bookingRequestDTO.getStartsAt())
                 .endsAt(bookingRequestDTO.getEndsAt())
                 .requestDate(LocalDateTime.now())
@@ -36,12 +35,13 @@ public class BookingRequestService {
         bookingRequestRepository.save(request);
 
         for (BookingRequestItemDTO itemDTO : bookingRequestDTO.getRequestItems()) {
-            bookingRequestItemRepository.save(BookingRequestItem
-                    .builder()
-                    .bookingRequest(request)
-                    .beds_count(itemDTO.getBedsCount())
-                    .type(itemDTO.getType())
-                    .build());
+            bookingRequestItemRepository.save(
+                    BookingRequestItem.builder()
+                            .bookingRequest(request)
+                            .bedsCount(itemDTO.getBedsCount())
+                            .type(itemDTO.getType())
+                            .build()
+            );
         }
     }
 

@@ -12,9 +12,9 @@ import java.util.List;
 @Builder
 @ToString
 public class OrderCreationDTO {
-    String userEmail;
-    LocalDateTime orderDate;
-    LocalDateTime startsAt;
-    LocalDateTime endsAt;
-    List<OrderItemDTO> orderItems;
+    private String userEmail;
+    private LocalDateTime orderDate;
+    private LocalDateTime startsAt;
+    private LocalDateTime endsAt;
+    private List<OrderItemDTO> orderItems;
 }

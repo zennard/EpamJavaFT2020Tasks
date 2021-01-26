@@ -1,7 +1,7 @@
 package ua.testing.demo_jpa.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +13,6 @@ import ua.testing.demo_jpa.dto.OrderItemDTO;
 import ua.testing.demo_jpa.dto.UpdateOrderDTO;
 import ua.testing.demo_jpa.entity.*;
 import ua.testing.demo_jpa.exceptions.EmptyOrderException;
-import ua.testing.demo_jpa.exceptions.OrderDeletionException;
 import ua.testing.demo_jpa.exceptions.UserNotFoundException;
 import ua.testing.demo_jpa.repository.ApartmentTimetableRepository;
 import ua.testing.demo_jpa.repository.OrderItemRepository;
@@ -21,25 +20,18 @@ import ua.testing.demo_jpa.repository.OrderRepository;
 import ua.testing.demo_jpa.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final ApartmentTimetableRepository apartmentTimetableRepository;
     private final UserRepository userRepository;
-
-    @Autowired
-    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository,
-                        ApartmentTimetableRepository apartmentTimetableRepository, UserRepository userRepository) {
-        this.orderRepository = orderRepository;
-        this.orderItemRepository = orderItemRepository;
-        this.apartmentTimetableRepository = apartmentTimetableRepository;
-        this.userRepository = userRepository;
-    }
 
     private static final String NOT_FOUND_RECORD = "Illegal record, record with this date doesn't exist!";
     private static final String NOT_FOUND_ITEM = "Illegal order item, item with this id doesn't exist!";
@@ -47,55 +39,70 @@ public class OrderService {
     private static final String RECORD_ALREADY_EXISTS = "Illegal record, record with this date already exists!";
 
     @Transactional
-    //@TODO do in one query
-    //@TODO remove transactional, instead call method with transactional
     public Long createNewOrder(OrderCreationDTO orderDTO) {
+        orderDTO.getOrderItems().stream()
+                .filter(item -> recordExists(orderDTO.getStartsAt(), orderDTO.getEndsAt(), item.getApartmentId()))
+                .findFirst()
+                .ifPresent(item -> {
+                    throw new IllegalArgumentException(RECORD_ALREADY_EXISTS);
+                });
 
-        //@TODO remove if
-        orderDTO.getOrderItems().forEach(item -> {
-                    if (recordExists(
-                            orderDTO.getStartsAt(), orderDTO.getEndsAt(), item.getApartmentId())) {
-                        throw new IllegalArgumentException(RECORD_ALREADY_EXISTS);
-                    }
-                }
-        );
         User user = userRepository.findByEmail(orderDTO.getUserEmail())
                 .orElseThrow(() -> new UserNotFoundException("User with this credentials wasn't found!"));
 
-        Order order = Order
+        Order order = getOrder(orderDTO, user);
+
+        List<OrderItem> orderItems = new ArrayList<>();
+        List<ApartmentTimetable> schedule = new ArrayList<>();
+
+        List<OrderItemDTO> orderItemsDTO = orderDTO.getOrderItems();
+        for (OrderItemDTO o : orderItemsDTO) {
+            Apartment apartment = new Apartment();
+            apartment.setId(o.getApartmentId());
+
+            ApartmentTimetable scheduleItem = getScheduleItem(orderDTO, apartment);
+            schedule.add(scheduleItem);
+
+            orderItems.add(
+                    OrderItem.builder()
+                            .order(order)
+                            .startsAt(orderDTO.getStartsAt())
+                            .endsAt(orderDTO.getEndsAt())
+                            .apartment(apartment)
+                            .schedule(scheduleItem)
+                            .price(o.getPrice())
+                            .amount(o.getAmount())
+                            .build()
+            );
+        }
+
+        return saveOrder(order, schedule, orderItems);
+    }
+
+    private Order getOrder(OrderCreationDTO orderDTO, User user) {
+        return Order
                 .builder()
                 .orderDate(orderDTO.getOrderDate())
                 .orderStatus(OrderStatus.NEW)
                 .user(user)
                 .build();
-        Order newOrder = orderRepository.save(order);
+    }
 
-        List<OrderItemDTO> orderItems = orderDTO.getOrderItems();
-        for (OrderItemDTO o : orderItems) {
-            Apartment apartment = new Apartment();
-            apartment.setId(o.getApartmentId());
+    private ApartmentTimetable getScheduleItem(OrderCreationDTO orderDTO, Apartment apartment) {
+        return ApartmentTimetable.builder()
+                .apartment(apartment)
+                .startsAt(orderDTO.getStartsAt())
+                .endsAt(orderDTO.getEndsAt())
+                .status(RoomStatus.BOOKED)
+                .build();
+    }
 
-            ApartmentTimetable schedule = apartmentTimetableRepository.save(ApartmentTimetable
-                    .builder()
-                    .apartment(apartment)
-                    .startsAt(orderDTO.getStartsAt())
-                    .endsAt(orderDTO.getEndsAt())
-                    .status(RoomStatus.BOOKED)
-                    .build());
-
-            orderItemRepository.save(OrderItem
-                    .builder()
-                    .order(order)
-                    .startsAt(orderDTO.getStartsAt())
-                    .endsAt(orderDTO.getEndsAt())
-                    .apartment(apartment)
-                    .schedule(schedule)
-                    .price(o.getPrice())
-                    .amount(o.getAmount())
-                    .build());
-        }
-
-        return newOrder.getId();
+    @Transactional
+    public Long saveOrder(Order order, List<ApartmentTimetable> schedule, List<OrderItem> items) {
+        orderRepository.save(order);
+        apartmentTimetableRepository.saveAll(schedule);
+        orderItemRepository.saveAll(items);
+        return order.getId();
     }
 
     public boolean recordExists(LocalDateTime startsAt, LocalDateTime endsAt, Long apartmentId) {
@@ -114,74 +121,67 @@ public class OrderService {
         if (newOrderDTO.getStatus().equals(OrderStatus.PAID)) {
             //@TODO pay for order with money
 
-            List<OrderItem> orderItems = orderItemRepository.findAllByOrderId(newOrderDTO.getId());
-            for (OrderItem item : orderItems) {
-                ApartmentTimetable schedule = apartmentTimetableRepository.findById(item.getApartment().getId())
-                        .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_RECORD));
-                schedule.setStatus(RoomStatus.PAID);
-                apartmentTimetableRepository.save(schedule);
-            }
+            List<ApartmentTimetable> schedule = new ArrayList<>();
+            orderItemRepository.findAllByOrderId(newOrderDTO.getId())
+                    .forEach(item -> {
+                        ApartmentTimetable timeslot = apartmentTimetableRepository
+                                .findById(item.getApartment().getId())
+                                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_RECORD));
+                        timeslot.setStatus(RoomStatus.PAID);
+                        schedule.add(timeslot);
+                    });
+
+            apartmentTimetableRepository.saveAll(schedule);
         }
     }
 
     @Transactional
     public void deleteOrder(Long orderId) {
-        if (!orderRepository.findById(orderId).isPresent()) {
-            throw new OrderDeletionException(NOT_FOUND_ORDER + orderId);
-        }
-
-        for (OrderItem item : orderItemRepository.findAllByOrderId(orderId)) {
-            if (!orderItemRepository.findById(item.getId()).isPresent()) {
-                throw new OrderDeletionException(NOT_FOUND_ITEM);
-            }
-            orderItemRepository.deleteById(item.getId());
-
-            if (!recordExists(item.getStartsAt(), item.getEndsAt(), item.getApartment().getId())) {
-                throw new OrderDeletionException(NOT_FOUND_RECORD);
-            }
-            apartmentTimetableRepository.deleteById(item.getSchedule().getId());
-        }
+        orderItemRepository.findAllByOrderId(orderId)
+                .forEach(item -> {
+                    orderItemRepository.deleteById(item.getId());
+                    apartmentTimetableRepository.deleteById(item.getSchedule().getId());
+                });
         orderRepository.deleteById(orderId);
     }
 
-    //@TODO
+    //@TODO do a method for all enum types of order
     public Page<OrderDTO> getAllNewOrders(Pageable pageable) {
         Page<Order> ordersPage = orderRepository.findAllByOrderStatus(OrderStatus.NEW, pageable);
 
         List<OrderDTO> ordersDTO = ordersPage
                 .stream()
-                .map(o -> {
-                            List<OrderItem> items = orderItemRepository.findAllByOrderId(o.getId());
-                            if (items.isEmpty()) {
-                                throw new EmptyOrderException("Cannot create order without order items!");
-                            }
-
-                            List<OrderItemDTO> itemsDTO = items
-                                    .stream()
-                                    .map(item -> OrderItemDTO
-                                            .builder()
-                                            .amount(item.getAmount())
-                                            .price(item.getPrice())
-                                            .apartmentId(item.getApartment().getId())
-                                            .build()
-                                    )
-                                    .collect(Collectors.toList());
-
-
-                            return OrderDTO
-                                    .builder()
-                                    .id(o.getId())
-                                    .userEmail(o.getUser().getEmail())
-                                    .orderDate(o.getOrderDate())
-                                    .startsAt(items.get(0).getStartsAt())
-                                    .endsAt(items.get(0).getEndsAt())
-                                    .orderItems(itemsDTO)
-                                    .build();
-                        }
-                )
+                .map(this::getOrderDTO)
                 .collect(Collectors.toList());
 
         return new PageImpl<>(ordersDTO, ordersPage.getPageable(),
                 ordersPage.getTotalElements());
+    }
+
+    private OrderDTO getOrderDTO(Order o) {
+        List<OrderItem> items = orderItemRepository.findAllByOrderId(o.getId());
+        if (items.isEmpty()) {
+            throw new EmptyOrderException("Cannot create order without order items!");
+        }
+
+        List<OrderItemDTO> itemsDTO = items
+                .stream()
+                .map(item -> OrderItemDTO.builder()
+                        .amount(item.getAmount())
+                        .price(item.getPrice())
+                        .apartmentId(item.getApartment().getId())
+                        .build()
+                )
+                .collect(Collectors.toList());
+
+
+        return OrderDTO.builder()
+                .id(o.getId())
+                .userEmail(o.getUser().getEmail())
+                .orderDate(o.getOrderDate())
+                .startsAt(items.get(0).getStartsAt())
+                .endsAt(items.get(0).getEndsAt())
+                .orderItems(itemsDTO)
+                .build();
     }
 }

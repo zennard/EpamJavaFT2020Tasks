@@ -3,7 +3,7 @@ package ua.testing.demo_jpa.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public interface ApartmentTimeSlot {
+public interface ApartmentTimeSlotView {
     Long getId();
 
     Long getSlotId();

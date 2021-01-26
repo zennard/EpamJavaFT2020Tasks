@@ -6,9 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import ua.testing.demo_jpa.auth.RoleType;
 import ua.testing.demo_jpa.dto.UserLoginDTO;
 import ua.testing.demo_jpa.dto.UserRegistrationDTO;
-import ua.testing.demo_jpa.entity.RoleType;
 import ua.testing.demo_jpa.entity.User;
 import ua.testing.demo_jpa.exceptions.IllegalEmailException;
 import ua.testing.demo_jpa.repository.UserRepository;
@@ -41,7 +41,7 @@ public class UserService {
                     .build();
             userRepository.save(user);
         } catch (Exception ex) {
-            log.info("{This Email already exists}");
+            log.error("{This Email already exists}");
             throw new IllegalEmailException(ex);
         }
 

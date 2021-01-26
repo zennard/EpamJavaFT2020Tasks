@@ -10,6 +10,6 @@ import ua.testing.demo_jpa.entity.OrderStatus;
 @Builder
 @ToString
 public class UpdateOrderDTO {
-    Long id;
-    OrderStatus status;
+    private Long id;
+    private OrderStatus status;
 }

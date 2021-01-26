@@ -38,13 +38,13 @@ public class OrderController {
     @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public String postOrder(@RequestParam List<Long> apartmentIds,
                             @RequestParam(value = "startsAt", required = false)
-                            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startsAt,
+                            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME, pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime startsAt,
                             @RequestParam(value = "endsAt", required = false)
-                            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endsAt,
+                            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME, pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime endsAt,
                             Principal principal) {
-        log.error("{}", apartmentIds);
+        log.info("{}", apartmentIds);
         List<OrderItemDTO> items = apartmentService.getAllApartmentsByIds(apartmentIds);
-        log.error("{}", items);
+        log.info("{}", items);
 
         OrderCreationDTO orderDTO = OrderCreationDTO
                 .builder()
@@ -54,9 +54,13 @@ public class OrderController {
                 .endsAt(endsAt)
                 .orderItems(items)
                 .build();
-        log.error("{}", orderDTO);
+
+        log.info("{}", orderDTO);
+
         orderService.createNewOrder(orderDTO);
-        return String.format("redirect:/apartments?startsAt=%s&endsAt=%s", startsAt, endsAt);
+        
+        return String.format("redirect:/apartments?startsAt=%s&endsAt=%s",
+                startsAt.toLocalDate(), endsAt.toLocalDate());
     }
 
     @GetMapping

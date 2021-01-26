@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Builder
 @ToString
 public class OrderItemDTO {
-    Long apartmentId;
-    Integer amount;
-    BigDecimal price;
+    private Long apartmentId;
+    private Integer amount;
+    private BigDecimal price;
 }

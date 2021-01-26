@@ -11,5 +11,5 @@ import java.util.List;
 @Builder
 @ToString
 public class OrdersDTO {
-    List<OrderDTO> orders;
+    private List<OrderDTO> orders;
 }

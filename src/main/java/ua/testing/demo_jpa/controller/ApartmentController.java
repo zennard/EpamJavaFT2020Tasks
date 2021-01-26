@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import ua.testing.demo_jpa.dto.ApartmentPageContextDTO;
+import ua.testing.demo_jpa.dto.DateDTO;
 import ua.testing.demo_jpa.dto.PageDTO;
 import ua.testing.demo_jpa.entity.Apartment;
 import ua.testing.demo_jpa.entity.ApartmentTimetable;
@@ -31,12 +33,14 @@ import java.util.Optional;
 @RequestMapping("/apartments")
 public class ApartmentController {
     private static final String APARTMENTS_PAGE = "apartment_controller/apartments.html";
+    private static final String APARTMENT_PAGE = "apartment_controller/apartment.html";
+    private static final int SETTLEMENT_MINUTES = 0;
+    public static final int DEFAULT_DAYS_OFFSET = 3;
     private final ApartmentService apartmentService;
     @Value("${apartment.check.in.time}")
     private Integer checkInHours;
     @Value("${apartment.check.out.time}")
     private Integer checkOutHours;
-    private static final int SETTLEMENT_MINUTES = 0;
 
     @Autowired
     public ApartmentController(ApartmentService apartmentService) {
@@ -50,20 +54,39 @@ public class ApartmentController {
                                     @RequestParam(value = "endsAt", required = false)
                                     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endsAt,
                                     @PageableDefault(sort = {"id"}, size = 2) Pageable pageable) {
-        log.error("{}", startsAt);
-        log.error("{}", endsAt);
+        log.info("{}", startsAt);
+        log.info("{}", endsAt);
 
         if (startsAt == null || endsAt == null) {
-            startsAt = LocalDate.now().minusDays(3);
-            endsAt = LocalDate.now().plusDays(3);
+            startsAt = LocalDate.now().minusDays(DEFAULT_DAYS_OFFSET);
+            endsAt = LocalDate.now().plusDays(DEFAULT_DAYS_OFFSET);
         }
 
         Page<Apartment> apartmentPage = apartmentService.getAllAvailableApartmentsByDate(pageable, startsAt, endsAt);
         Pageable currentPageable = apartmentPage.getPageable();
 
-        model.addAttribute("apartments", apartmentPage.getContent());
-        model.addAttribute("page", PageDTO
-                .builder()
+        model.addAttribute("pageContext",
+                ApartmentPageContextDTO.builder()
+                        .apartments(apartmentPage.getContent())
+                        .page(getPageDTO(apartmentPage, currentPageable))
+                        .date(getDateDTO(startsAt, endsAt))
+                        .build()
+        );
+
+        return APARTMENTS_PAGE;
+    }
+
+    private DateDTO getDateDTO(LocalDate startsAt, LocalDate endsAt) {
+        return DateDTO.builder()
+                .prevYear(LocalDateTime.now().getYear() - 1)
+                .nextYear(LocalDateTime.now().getYear() + 1)
+                .checkIn(startsAt)
+                .checkOut(endsAt)
+                .build();
+    }
+
+    private PageDTO getPageDTO(Page<Apartment> apartmentPage, Pageable currentPageable) {
+        return PageDTO.builder()
                 .limit(currentPageable.getPageSize())
                 .prevPage(currentPageable.getPageNumber() - 1)
                 .nextPage(currentPageable.getPageNumber() + 1)
@@ -72,13 +95,7 @@ public class ApartmentController {
                 .hasPrev(apartmentPage.hasPrevious())
                 .hasNext(apartmentPage.hasNext())
                 .url("/apartments")
-                .build());
-        model.addAttribute("currentYear", LocalDateTime.now().getYear());
-        model.addAttribute("nextYear", (LocalDateTime.now().getYear() + 1));
-        model.addAttribute("checkIn", startsAt);
-        model.addAttribute("checkOut", endsAt);
-
-        return APARTMENTS_PAGE;
+                .build();
     }
 
     //@TODO rewrite
@@ -93,7 +110,7 @@ public class ApartmentController {
                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endsAt) {
         Apartment apartment = apartmentService.getApartmentByIdAndDate(id, startsAt, endsAt);
 
-        log.error("{}", apartment);
+        log.info("{}", apartment);
 
         ApartmentTimetable schedule = Optional.ofNullable(timeSlotId)
                 .map(tId -> apartment
@@ -112,6 +129,6 @@ public class ApartmentController {
         model.addAttribute("userEndsAt", LocalDateTime.of(endsAt,
                 LocalTime.of(checkOutHours, SETTLEMENT_MINUTES)));
 
-        return "apartment_controller/apartment.html";
+        return APARTMENT_PAGE;
     }
 }

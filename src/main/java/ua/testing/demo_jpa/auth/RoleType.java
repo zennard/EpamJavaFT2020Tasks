@@ -1,4 +1,4 @@
-package ua.testing.demo_jpa.entity;
+package ua.testing.demo_jpa.auth;
 
 import org.springframework.security.core.GrantedAuthority;
 

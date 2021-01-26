@@ -3,17 +3,12 @@ package ua.testing.demo_jpa.service;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -24,40 +19,28 @@ import ua.testing.demo_jpa.repository.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 //@SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @RunWith(SpringRunner.class)
+@SpringBootTest
 @Slf4j
 class OrderServiceTest {
-    @TestConfiguration
-    private class EmployeeServiceImplTestContextConfiguration {
-        @Bean
-        public ApartmentService apartmentService() {
-            return new ApartmentService(apartmentRepository, apartmentTimetableRepository, apartmentDescriptionRepository);
-        }
-
-        @Bean
-        public OrderService orderService() {
-            return new OrderService(orderRepository, orderItemRepository, apartmentTimetableRepository, userRepository);
-        }
-    }
-
-    @MockBean
+    @Autowired
     private OrderRepository orderRepository;
-    @MockBean
+    @Autowired
     private OrderItemRepository orderItemRepository;
-    @MockBean
+    @Autowired
     private ApartmentTimetableRepository apartmentTimetableRepository;
-    @MockBean
+    @Autowired
     private ApartmentRepository apartmentRepository;
-    @MockBean
+    @Autowired
     private UserRepository userRepository;
-    @MockBean
+    @Autowired
     private ApartmentDescriptionRepository apartmentDescriptionRepository;
 
     @Autowired
@@ -74,17 +57,26 @@ class OrderServiceTest {
     public static final Long ORDER_ITEM_ID = 1L;
     public static final Pageable PAGEABLE = PageRequest.of(0, 20);
 
-    @BeforeEach
-    public void setUp() {
-        Order order = initializeTestOrder(ORDER_ID);
-        Apartment apartment = initializeTestApartment(APARTMENT_ID);
-        ApartmentTimetable schedule = initializeTestSchedule(SCHEDULE_ID, APARTMENT_ID, TEST_DATE_OFFSET);
-        OrderItem orderItem = initializeTestOrderItem(ORDER_ITEM_ID, ORDER_ID, APARTMENT_ID, SCHEDULE_ID, TEST_DATE_OFFSET);
-
-        Mockito.when(orderRepository.findAllByOrderStatus(order.getOrderStatus(), PAGEABLE))
-                .thenReturn(new PageImpl<>(Collections.singletonList(order)));
-
+    @Test
+    void functionTest() {
+        User user = new User();
+        user.setEmail("email@mail.com");
+        userRepository.save(user);
+        List<User> users = (List<User>) userRepository.findAll();
+        assertEquals(users.size(), 1);
     }
+
+//    @BeforeEach
+//    public void setUp() {
+//        Order order = initializeTestOrder(ORDER_ID);
+//        Apartment apartment = initializeTestApartment(APARTMENT_ID);
+//        ApartmentTimetable schedule = initializeTestSchedule(SCHEDULE_ID, APARTMENT_ID, TEST_DATE_OFFSET);
+//        OrderItem orderItem = initializeTestOrderItem(ORDER_ITEM_ID, ORDER_ID, APARTMENT_ID, SCHEDULE_ID, TEST_DATE_OFFSET);
+//
+//        Mockito.when(orderRepository.findAllByOrderStatus(order.getOrderStatus(), PAGEABLE))
+//                .thenReturn(new PageImpl<>(Collections.singletonList(order)));
+//
+//    }
 
 //    @BeforeEach
 //    public void setup() {

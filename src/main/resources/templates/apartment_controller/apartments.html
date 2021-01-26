@@ -16,11 +16,10 @@
         </header>
 
         <div class="page-container">
-            <div class="container-sm" th:insert="fragments/datepicker.html :: datePicker(
-        ${currentYear}, ${nextYear}, ${checkIn}, ${checkOut})">...
+            <div class="container-sm" th:insert="fragments/datepicker.html :: datePicker(${pageContext.date})">...
             </div>
 
-            <main class="container-md">
+            <main class="container-md" th:with="apartments = ${pageContext.apartments}">
                 <table class="table">
                     <thead class="thead-dark">
                         <tr>
@@ -41,31 +40,22 @@
                     </tbody>
                     <tbody>
                         <th:block th:each="a : ${apartments}">
-                            <th:block th:each="time_slot : ${a.getSchedule()}">
+                            <th:block th:each="time_slot : ${a.getSchedule()}"
+                                      th:with="format=${#locale.toString().equals('ua')} ? 'dd-MM-yyyy HH:mm' : 'MM-dd-yyyy HH:mm'">
                                 <tr>
                                     <th scope="row"><span th:text="${a.id}"/></th>
-                                    <th:block th:if="${#locale.toString().equals('en')}">
-                                        <td><span
-                                                th:text="${#temporals.format(time_slot.getStartsAt(), 'MM-dd-yyyy HH:mm')}"/>
-                                        </td>
-                                        <td><span
-                                                th:text="${#temporals.format(time_slot.getEndsAt(), 'MM-dd-yyyy HH:mm')}"/>
-                                        </td>
-                                    </th:block>
-                                    <th:block th:if="${#locale.toString().equals('ua')}">
-                                        <td><span
-                                                th:text="${#temporals.format(time_slot.getStartsAt(), 'dd-MM-yyyy HH:mm')}"/>
-                                        </td>
-                                        <td><span
-                                                th:text="${#temporals.format(time_slot.getEndsAt(), 'dd-MM-yyyy HH:mm')}"/>
-                                        </td>
-                                    </th:block>
+                                    <td><span
+                                            th:text="${#temporals.format(time_slot.getStartsAt(), format)}"/>
+                                    </td>
+                                    <td><span
+                                            th:text="${#temporals.format(time_slot.getEndsAt(), format)}"/>
+                                    </td>
                                     <td>
-                                        <span th:text="${T(ua.testing.demo_jpa.entity.Internationalization).getMessage(a.getType())}"/>
+                                        <span th:text="${T(ua.testing.demo_jpa.util.Internationalization).getMessage(a.getType())}"/>
                                     </td>
                                     <td><span th:text="${a.getBedsCount()}"/></td>
                                     <td>
-                                        <span th:text="${T(ua.testing.demo_jpa.entity.Internationalization).getMessage(time_slot.getStatus())}"/>
+                                        <span th:text="${T(ua.testing.demo_jpa.util.Internationalization).getMessage(time_slot.getStatus())}"/>
                                     </td>
                                     <td>
                                         <button type="button" class="btn btn-success"
@@ -83,7 +73,7 @@
             </main>
 
             <div class="container-sm"
-                 th:insert="fragments/pager.html :: pager(${page})">...
+                 th:insert="fragments/pager.html :: pager(${pageContext.page})">...
             </div>
         </div>
 

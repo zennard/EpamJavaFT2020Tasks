@@ -1,7 +1,7 @@
 package ua.testing.demo_jpa.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -12,10 +12,11 @@ import ua.testing.demo_jpa.entity.*;
 import ua.testing.demo_jpa.exceptions.ApartmentNotFoundException;
 import ua.testing.demo_jpa.exceptions.DescriptionNotFoundException;
 import ua.testing.demo_jpa.exceptions.IllegalDateException;
-import ua.testing.demo_jpa.mapper.ApartmentMapper;
 import ua.testing.demo_jpa.repository.ApartmentDescriptionRepository;
 import ua.testing.demo_jpa.repository.ApartmentRepository;
 import ua.testing.demo_jpa.repository.ApartmentTimetableRepository;
+import ua.testing.demo_jpa.util.ApartmentMapper;
+import ua.testing.demo_jpa.util.Internationalization;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,27 +25,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ApartmentService {
     private final ApartmentRepository apartmentRepository;
     private final ApartmentTimetableRepository apartmentTimetableRepository;
     private final ApartmentDescriptionRepository apartmentDescriptionRepository;
-    //@TODO move to some constabts class
+    //@TODO move to some constants class
     @Value("${apartment.check.in.time}")
     private Integer checkInHours;
     @Value("${apartment.check.out.time}")
     private Integer checkOutHours;
     private static final int SETTLEMENT_MINUTES = 0;
-
-    @Autowired
-    public ApartmentService(ApartmentRepository apartmentRepository, ApartmentTimetableRepository apartmentTimetableRepository, ApartmentDescriptionRepository apartmentDescriptionRepository) {
-        this.apartmentRepository = apartmentRepository;
-        this.apartmentTimetableRepository = apartmentTimetableRepository;
-        this.apartmentDescriptionRepository = apartmentDescriptionRepository;
-    }
 
     public Page<Apartment> getAllApartments(Pageable pageable) {
         return apartmentRepository.findAll(pageable);
@@ -57,24 +51,25 @@ public class ApartmentService {
         LocalDateTime checkIn = LocalDateTime.of(startsAt, LocalTime.of(checkInHours, SETTLEMENT_MINUTES));
         LocalDateTime checkOut = LocalDateTime.of(endsAt, LocalTime.of(checkOutHours, SETTLEMENT_MINUTES));
 
-        Page<ApartmentTimeSlot> apartmentsPage = apartmentRepository.findAllAvailableByDate(checkIn, checkOut, pageable);
+        Page<ApartmentTimeSlotView> apartmentsPage = apartmentRepository.findAllAvailableByDate(checkIn, checkOut, pageable);
 
         List<Apartment> parsedApartments = new ArrayList<>();
-        for (ApartmentTimeSlot slot : apartmentsPage.getContent()) {
+        for (ApartmentTimeSlotView slot : apartmentsPage.getContent()) {
             Apartment a = ApartmentMapper.map(slot);
 
-            log.error("{}", a);
-            log.error("{}", a.getSchedule());
-            log.error("\n---\n");
+            log.info("{}", a);
+            log.info("{}", a.getSchedule());
+            log.info("\n---\n");
 
             List<ApartmentTimetable> schedule = a.getSchedule();
             if (schedule.isEmpty()) {
-                schedule.add(ApartmentTimetable
-                        .builder()
-                        .status(RoomStatus.FREE)
-                        .startsAt(checkIn)
-                        .endsAt(checkOut)
-                        .build());
+                schedule.add(
+                        ApartmentTimetable.builder()
+                                .status(RoomStatus.FREE)
+                                .startsAt(checkIn)
+                                .endsAt(checkOut)
+                                .build()
+                );
             }
 
             parsedApartments.add(a);
@@ -95,12 +90,13 @@ public class ApartmentService {
         List<ApartmentTimetable> schedule = apartmentTimetableRepository
                 .findAllByApartmentIdAndDate(checkIn, checkOut, apartment.getId());
         if (schedule.isEmpty()) {
-            schedule.add(ApartmentTimetable
-                    .builder()
-                    .status(RoomStatus.FREE)
-                    .build());
+            schedule.add(
+                    ApartmentTimetable.builder()
+                            .status(RoomStatus.FREE)
+                            .build()
+            );
         }
-        log.error("{}", schedule);
+        log.info("{}", schedule);
 
         ApartmentDescription description = apartmentDescriptionRepository.findApartmentDescriptionByApartmentIdAndLang(id,
                 Language.valueOf(Internationalization.getCurrentLocale().toString().toUpperCase(Locale.ROOT)))
@@ -117,12 +113,12 @@ public class ApartmentService {
 
         return apartments
                 .stream()
-                .flatMap(a -> Stream.of(OrderItemDTO
-                        .builder()
+                .map(a -> OrderItemDTO.builder()
                         .apartmentId(a.getId())
                         .price(a.getPrice())
                         .amount(1)
-                        .build()))
+                        .build()
+                )
                 .collect(Collectors.toList());
     }
 }

@@ -1,8 +1,8 @@
-package ua.testing.demo_jpa.mapper;
+package ua.testing.demo_jpa.util;
 
 import lombok.extern.slf4j.Slf4j;
 import ua.testing.demo_jpa.entity.Apartment;
-import ua.testing.demo_jpa.entity.ApartmentTimeSlot;
+import ua.testing.demo_jpa.entity.ApartmentTimeSlotView;
 import ua.testing.demo_jpa.entity.ApartmentTimetable;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ public class ApartmentMapper {
 
     }
 
-    public static Apartment map(ApartmentTimeSlot slot) {
+    public static Apartment map(ApartmentTimeSlotView slot) {
         List<ApartmentTimetable> schedule;
 
         if (slot.getStartsAt() != null && slot.getEndsAt() != null) {

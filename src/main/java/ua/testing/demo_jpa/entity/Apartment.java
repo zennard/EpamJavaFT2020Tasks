@@ -34,7 +34,7 @@ public class Apartment {
     private String description;
 
     @Column(name = "is_available")
-    private boolean isAvailable;
+    private Boolean isAvailable;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "apartment")
     @ToString.Exclude
