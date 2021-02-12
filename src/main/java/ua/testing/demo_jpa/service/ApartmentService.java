@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.stereotype.Service;
 import ua.testing.demo_jpa.dto.OrderItemDTO;
 import ua.testing.demo_jpa.entity.*;
@@ -21,10 +23,9 @@ import ua.testing.demo_jpa.util.Internationalization;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -39,6 +40,10 @@ public class ApartmentService {
     @Value("${apartment.check.out.time}")
     private Integer checkOutHours;
     private static final int SETTLEMENT_MINUTES = 0;
+    private static final Set<String> VALID_COLUMNS_FOR_ORDER_BY = Collections.unmodifiableSet(
+            (Set<? extends String>) Stream
+                    .of("id", "type", "price", "beds_count", "status")
+                    .collect(Collectors.toCollection(HashSet::new)));
 
     public Page<Apartment> getAllApartments(Pageable pageable) {
         return apartmentRepository.findAll(pageable);
@@ -51,26 +56,14 @@ public class ApartmentService {
         LocalDateTime checkIn = LocalDateTime.of(startsAt, LocalTime.of(checkInHours, SETTLEMENT_MINUTES));
         LocalDateTime checkOut = LocalDateTime.of(endsAt, LocalTime.of(checkOutHours, SETTLEMENT_MINUTES));
 
+        pageable = encodeSortParameter(pageable);
+        log.info("{}", pageable.getSort());
         Page<ApartmentTimeSlotView> apartmentsPage = apartmentRepository.findAllAvailableByDate(checkIn, checkOut, pageable);
 
         List<Apartment> parsedApartments = new ArrayList<>();
         for (ApartmentTimeSlotView slot : apartmentsPage.getContent()) {
             Apartment a = ApartmentMapper.map(slot);
 
-//            log.info("{}", a);
-//            log.info("{}", a.getSchedule());
-//            log.info("\n---\n");
-//
-//            List<ApartmentTimetable> schedule = a.getSchedule();
-//            if (schedule.isEmpty()) {
-//                schedule.add(
-//                        ApartmentTimetable.builder()
-//                                .status(RoomStatus.FREE)
-//                                .startsAt(checkIn)
-//                                .endsAt(checkOut)
-//                                .build()
-//                );
-//            }
             updateEmptySchedule(a, checkIn, checkOut);
 
             parsedApartments.add(a);
@@ -80,6 +73,16 @@ public class ApartmentService {
 
         return new PageImpl<>(parsedApartments, apartmentsPage.getPageable(),
                 apartmentsPage.getTotalElements());
+    }
+
+    private Pageable encodeSortParameter(Pageable pageable) {
+        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), JpaSort.unsafe(
+                pageable.getSort()
+                        .get()
+                        .filter(o -> VALID_COLUMNS_FOR_ORDER_BY.contains(o.getProperty()))
+                        .flatMap(o -> Stream.of("(" + o.getProperty() + "), id"))
+                        .collect(Collectors.joining())
+        ));
     }
 
     public Apartment getApartmentByIdAndDate(Long id, LocalDate startsAt, LocalDate endsAt) {

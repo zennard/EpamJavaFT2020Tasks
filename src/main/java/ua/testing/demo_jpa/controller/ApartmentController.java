@@ -59,6 +59,7 @@ public class ApartmentController {
                                     Authentication authentication) {
         log.info("{}", startsAt);
         log.info("{}", endsAt);
+        log.info("sort: {}", pageable.getSort().toString());
 
         if (startsAt == null || endsAt == null) {
             startsAt = LocalDate.now().minusDays(DEFAULT_DAYS_OFFSET);

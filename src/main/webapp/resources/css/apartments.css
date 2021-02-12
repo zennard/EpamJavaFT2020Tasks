@@ -8,14 +8,18 @@ html, body {
     font-family: 'Numans', sans-serif;
 }
 
+.active-sort-tab {
+    color: azure;
+    text-align: center;
+    vertical-align: middle;
+    border-right: solid;
+}
+
 .page-container {
     background-color: rgba(243, 239, 240, 0.9);
     padding-bottom: 1px;
 }
 
-.active-sort-tab {
-    background-color: black;
-    color: azure;
-    text-align: center;
-    vertical-align: middle;
+.sort-link {
+    color: inherit;
 }

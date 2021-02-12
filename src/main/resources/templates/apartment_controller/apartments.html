@@ -15,6 +15,12 @@
         <header th:insert="fragments/header.html :: header(module='apartments', userId=${userId})">...
         </header>
 
+        <form name="sortForm" method="GET">
+            <input type="hidden" id="sortTypeValue" name="sort">
+            <input type="hidden" id="sortStartsAt" name="startsAt">
+            <input type="hidden" id="sortEndsAt" name="endsAt">
+        </form>
+
         <div class="page-container">
             <div class="container-sm" th:insert="fragments/datepicker.html :: datePicker(${pageContext.date})">...
             </div>
@@ -23,12 +29,33 @@
                 <table class="table">
                     <thead class="thead-dark">
                         <tr>
-                            <th scope="col" th:text="#{apartments.label.apartment.id}">ApartmentId</th>
+                            <th scope="col" class="active-sort-tab" style="background-color: black;">
+                                <a class="sort-link" onclick="onSortButtonClick()" data-type="id"
+                                   th:text="#{apartments.label.apartment.id}">
+                                </a>
+                            </th>
                             <th scope="col" th:text="#{apartments.label.check.in}">StartsAt</th>
                             <th scope="col" th:text="#{apartments.label.check.out}">EndsAt</th>
-                            <th scope="col" th:text="#{apartments.label.type}">Type</th>
-                            <th scope="col" th:text="#{apartments.label.beds.count}">BedsCount</th>
-                            <th scope="col" th:text="#{apartments.label.status}">Current Status</th>
+                            <th scope="col" class="active-sort-tab" style="background-color: black;">
+                                <a class="sort-link" onclick="onSortButtonClick()" data-type="type"
+                                   th:text="#{apartments.label.type}">
+                                </a>
+                            </th>
+                            <th scope="col" class="active-sort-tab" style="background-color: black;">
+                                <a class="sort-link" onclick="onSortButtonClick()" data-type="beds_count"
+                                   th:text="#{apartments.label.beds.count}">
+                                </a>
+                            </th>
+                            <th scope="col" class="active-sort-tab" style="background-color: black;">
+                                <a class="sort-link" onclick="onSortButtonClick()" data-type="price"
+                                   th:text="#{apartments.label.price}">
+                                </a>
+                            </th>
+                            <th scope="col" class="active-sort-tab" style="background-color: black;">
+                                <a class="sort-link" onclick="onSortButtonClick()" data-type="status"
+                                   th:text="#{apartments.label.status}">
+                                </a>
+                            </th>
                             <th scope="col" th:text="#{apartments.label.book}">Book this apartment
                             </th>
                         </tr>
@@ -54,6 +81,7 @@
                                         <span th:text="${T(ua.testing.demo_jpa.util.Internationalization).getMessage(a.getType())}"/>
                                     </td>
                                     <td><span th:text="${a.getBedsCount()}"/></td>
+                                    <td><span th:text="${a.getPrice()}"></span></td>
                                     <td>
                                         <span th:text="${T(ua.testing.demo_jpa.util.Internationalization).getMessage(time_slot.getStatus())}"/>
                                     </td>
@@ -82,11 +110,13 @@
                 crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js" crossorigin="anonymous">
         </script>
+        <script src="/resources/js/datepicker.js">
+        </script>
+        <script src="/resources/js/pager.js">
+        </script>
         <script src="/resources/js/apartments.js">
         </script>
         <script src="/resources/js/header.js" crossorigin="anonymous">
-        </script>
-        <script src="/resources/js/datepicker.js">
         </script>
     </body>
 </html>
