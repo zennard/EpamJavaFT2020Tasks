@@ -57,23 +57,26 @@ public class ApartmentService {
         for (ApartmentTimeSlotView slot : apartmentsPage.getContent()) {
             Apartment a = ApartmentMapper.map(slot);
 
-            log.info("{}", a);
-            log.info("{}", a.getSchedule());
-            log.info("\n---\n");
-
-            List<ApartmentTimetable> schedule = a.getSchedule();
-            if (schedule.isEmpty()) {
-                schedule.add(
-                        ApartmentTimetable.builder()
-                                .status(RoomStatus.FREE)
-                                .startsAt(checkIn)
-                                .endsAt(checkOut)
-                                .build()
-                );
-            }
+//            log.info("{}", a);
+//            log.info("{}", a.getSchedule());
+//            log.info("\n---\n");
+//
+//            List<ApartmentTimetable> schedule = a.getSchedule();
+//            if (schedule.isEmpty()) {
+//                schedule.add(
+//                        ApartmentTimetable.builder()
+//                                .status(RoomStatus.FREE)
+//                                .startsAt(checkIn)
+//                                .endsAt(checkOut)
+//                                .build()
+//                );
+//            }
+            updateEmptySchedule(a, checkIn, checkOut);
 
             parsedApartments.add(a);
         }
+        log.info("total: {}", apartmentsPage.getTotalElements());
+        log.info("total: {}", apartmentsPage.getTotalPages());
 
         return new PageImpl<>(parsedApartments, apartmentsPage.getPageable(),
                 apartmentsPage.getTotalElements());
@@ -120,5 +123,22 @@ public class ApartmentService {
                         .build()
                 )
                 .collect(Collectors.toList());
+    }
+
+    private void updateEmptySchedule(Apartment a, LocalDateTime checkIn, LocalDateTime checkOut) {
+        log.info("{}", a);
+        log.info("{}", a.getSchedule());
+        log.info("\n---\n");
+
+        List<ApartmentTimetable> schedule = a.getSchedule();
+        if (schedule.isEmpty()) {
+            schedule.add(
+                    ApartmentTimetable.builder()
+                            .status(RoomStatus.FREE)
+                            .startsAt(checkIn)
+                            .endsAt(checkOut)
+                            .build()
+            );
+        }
     }
 }

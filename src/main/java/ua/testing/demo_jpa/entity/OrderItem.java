@@ -30,7 +30,7 @@ public class OrderItem {
     private Order order;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appartment_timetable_id", nullable = false)
+    @JoinColumn(name = "apartment_timetable_id", nullable = false)
     private ApartmentTimetable schedule;
 
     @Column(name = "starts_at", nullable = false, columnDefinition = "TIMESTAMP")

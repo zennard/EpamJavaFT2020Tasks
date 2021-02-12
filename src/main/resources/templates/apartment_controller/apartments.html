@@ -12,7 +12,7 @@
         <link rel="stylesheet" href="/resources/css/datepicker.css">
     </head>
     <body>
-        <header th:insert="fragments/header.html :: header(module='apartments')">...
+        <header th:insert="fragments/header.html :: header(module='apartments', userId=${userId})">...
         </header>
 
         <div class="page-container">
@@ -35,7 +35,7 @@
                     </thead>
                     <tbody th:if="${apartments.empty}">
                         <tr>
-                            <td colspan="6" th:text="#{apartments.label.empty}"> No apartments Available</td>
+                            <td colspan="7" th:text="#{apartments.label.empty}"> No apartments Available</td>
                         </tr>
                     </tbody>
                     <tbody>

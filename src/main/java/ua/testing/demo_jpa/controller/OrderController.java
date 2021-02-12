@@ -8,22 +8,28 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ua.testing.demo_jpa.auth.RoleType;
+import ua.testing.demo_jpa.auth.UserPrincipal;
 import ua.testing.demo_jpa.dto.*;
 import ua.testing.demo_jpa.entity.OrderStatus;
+import ua.testing.demo_jpa.exceptions.ForbiddenPageException;
 import ua.testing.demo_jpa.service.ApartmentService;
 import ua.testing.demo_jpa.service.OrderService;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Controller
 @RequestMapping("/orders")
 public class OrderController {
+    private static final String FORBIDDEN_PAGE_EXCEPTION_MESSAGE = "Cannot access this page";
     private final OrderService orderService;
     private final ApartmentService apartmentService;
     public static final String ORDERS_PAGE = "order_controller/orders.html";
@@ -58,7 +64,7 @@ public class OrderController {
         log.info("{}", orderDTO);
 
         orderService.createNewOrder(orderDTO);
-        
+
         return String.format("redirect:/apartments?startsAt=%s&endsAt=%s",
                 startsAt.toLocalDate(), endsAt.toLocalDate());
     }
@@ -66,13 +72,24 @@ public class OrderController {
     @GetMapping
     @PreAuthorize("hasRole('ROLE_MANAGER')")
     public String getOrdersPage(Model model,
-                                @PageableDefault(sort = {"id"}, size = 2) Pageable pageable) {
+                                @PageableDefault(sort = {"id"}, size = 2) Pageable pageable,
+                                Authentication authentication) {
         Page<OrderDTO> orderPage = orderService.getAllNewOrders(pageable);
         Pageable currentPageable = orderPage.getPageable();
 
         model.addAttribute("orders", orderPage.getContent());
-        model.addAttribute("page", PageDTO
-                .builder()
+        model.addAttribute("page", getPageDTO(orderPage, currentPageable));
+        Optional.ofNullable(authentication)
+                .ifPresent(auth -> {
+                    UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+                    model.addAttribute("userId", user.getUserId());
+                });
+
+        return ORDERS_PAGE;
+    }
+
+    private PageDTO getPageDTO(Page<OrderDTO> orderPage, Pageable currentPageable) {
+        return PageDTO.builder()
                 .limit(currentPageable.getPageSize())
                 .prevPage(currentPageable.getPageNumber() - 1)
                 .nextPage(currentPageable.getPageNumber() + 1)
@@ -81,17 +98,25 @@ public class OrderController {
                 .hasPrev(orderPage.hasPrevious())
                 .hasNext(orderPage.hasNext())
                 .url("/orders/")
-                .build());
-
-        return ORDERS_PAGE;
+                .build();
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_MANAGER')")
     public String updateOrder(@PathVariable Long id,
-                              @RequestParam("orderStatus") OrderStatus newStatus) {
+                              @RequestParam("orderStatus") OrderStatus newStatus,
+                              Authentication authentication) {
+        Optional.ofNullable(authentication)
+                .ifPresent(auth -> {
+                    UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+                    if (newStatus.equals(OrderStatus.APPROVED) && !user.getAuthorities().contains(RoleType.ROLE_MANAGER)) {
+                        throw new ForbiddenPageException(FORBIDDEN_PAGE_EXCEPTION_MESSAGE);
+                    }
+                });
         orderService.updateOrderStatus(
-                UpdateOrderDTO.builder().id(id).status(newStatus).build()
+                UpdateOrderDTO.builder()
+                        .id(id)
+                        .status(newStatus)
+                        .build()
         );
         return ORDERS_REDIRECT;
     }

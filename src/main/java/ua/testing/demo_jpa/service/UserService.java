@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import ua.testing.demo_jpa.auth.RoleType;
 import ua.testing.demo_jpa.dto.UserLoginDTO;
+import ua.testing.demo_jpa.dto.UserProfileDTO;
 import ua.testing.demo_jpa.dto.UserRegistrationDTO;
 import ua.testing.demo_jpa.entity.User;
 import ua.testing.demo_jpa.exceptions.IllegalEmailException;
@@ -28,6 +29,17 @@ public class UserService {
     public Optional<User> findByUserLogin(UserLoginDTO userLoginDTO) {
         return userRepository.findByEmailAndPassword(
                 userLoginDTO.getEmail(), encodePassword(userLoginDTO.getPassword()));
+    }
+
+    public Optional<UserProfileDTO> findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(u -> UserProfileDTO.builder()
+                        .id(u.getId())
+                        .email(u.getEmail())
+                        .firstName(u.getFirstName())
+                        .lastName(u.getLastName())
+                        .role(u.getRole())
+                        .build());
     }
 
     public void saveNewUser(UserRegistrationDTO userRegDTO) {

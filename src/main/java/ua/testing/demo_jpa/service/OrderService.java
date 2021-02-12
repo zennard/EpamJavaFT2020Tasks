@@ -7,10 +7,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ua.testing.demo_jpa.dto.OrderCreationDTO;
-import ua.testing.demo_jpa.dto.OrderDTO;
-import ua.testing.demo_jpa.dto.OrderItemDTO;
-import ua.testing.demo_jpa.dto.UpdateOrderDTO;
+import ua.testing.demo_jpa.dto.*;
 import ua.testing.demo_jpa.entity.*;
 import ua.testing.demo_jpa.exceptions.EmptyOrderException;
 import ua.testing.demo_jpa.exceptions.UserNotFoundException;
@@ -34,7 +31,6 @@ public class OrderService {
     private final UserRepository userRepository;
 
     private static final String NOT_FOUND_RECORD = "Illegal record, record with this date doesn't exist!";
-    private static final String NOT_FOUND_ITEM = "Illegal order item, item with this id doesn't exist!";
     public static final String NOT_FOUND_ORDER = "Cannot delete non-existing order with id ";
     private static final String RECORD_ALREADY_EXISTS = "Illegal record, record with this date already exists!";
 
@@ -158,22 +154,25 @@ public class OrderService {
                 ordersPage.getTotalElements());
     }
 
+    public Page<UserOrderDTO> getAllUserOrders(Pageable pageable, Long userId) {
+        Page<Order> ordersPage = orderRepository.findAllByUserId(userId, pageable);
+
+        List<UserOrderDTO> ordersDTO = ordersPage
+                .stream()
+                .map(this::getUserOrderDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(ordersDTO, ordersPage.getPageable(),
+                ordersPage.getTotalElements());
+    }
+
     private OrderDTO getOrderDTO(Order o) {
         List<OrderItem> items = orderItemRepository.findAllByOrderId(o.getId());
         if (items.isEmpty()) {
             throw new EmptyOrderException("Cannot create order without order items!");
         }
 
-        List<OrderItemDTO> itemsDTO = items
-                .stream()
-                .map(item -> OrderItemDTO.builder()
-                        .amount(item.getAmount())
-                        .price(item.getPrice())
-                        .apartmentId(item.getApartment().getId())
-                        .build()
-                )
-                .collect(Collectors.toList());
-
+        List<OrderItemDTO> itemsDTO = getOrderItemDTOS(items);
 
         return OrderDTO.builder()
                 .id(o.getId())
@@ -183,5 +182,35 @@ public class OrderService {
                 .endsAt(items.get(0).getEndsAt())
                 .orderItems(itemsDTO)
                 .build();
+    }
+
+    private UserOrderDTO getUserOrderDTO(Order o) {
+        List<OrderItem> items = orderItemRepository.findAllByOrderId(o.getId());
+        if (items.isEmpty()) {
+            throw new EmptyOrderException("Cannot create order without order items!");
+        }
+
+        List<OrderItemDTO> itemsDTO = getOrderItemDTOS(items);
+
+        return UserOrderDTO.builder()
+                .id(o.getId())
+                .status(o.getOrderStatus())
+                .orderDate(o.getOrderDate())
+                .startsAt(items.get(0).getStartsAt())
+                .endsAt(items.get(0).getEndsAt())
+                .orderItems(itemsDTO)
+                .build();
+    }
+
+    private List<OrderItemDTO> getOrderItemDTOS(List<OrderItem> items) {
+        return items
+                .stream()
+                .map(item -> OrderItemDTO.builder()
+                        .amount(item.getAmount())
+                        .price(item.getPrice())
+                        .apartmentId(item.getApartment().getId())
+                        .build()
+                )
+                .collect(Collectors.toList());
     }
 }

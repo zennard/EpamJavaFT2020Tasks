@@ -6,7 +6,7 @@
     </head>
     <body>
         <nav class="navbar navbar navbar-expand-lg navbar-inverse navbar-fixed-top navbar-dark bg-dark"
-             th:fragment="header(module)">
+             th:fragment="header(module, userId)">
             <div class="container-fluid">
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapse"
                         aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,6 +42,14 @@
                                th:classappend="${module == 'orders' ? 'active' : ''}"
                                th:text="#{navigation.section.orders}">
                                 Orders
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" th:href="@{/users/{id}(id=${userId})}"
+                               th:classappend="${module == 'user' ? 'active' : ''}"
+                               th:text="#{navigation.section.user}"
+                               th:if="${#authorization.expression('isAuthenticated()')}">
+                                Profile
                             </a>
                         </li>
                     </ul>

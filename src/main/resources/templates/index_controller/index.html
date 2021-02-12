@@ -11,7 +11,7 @@
         <link rel="stylesheet" href="/resources/css/index.css" crossorigin="anonymous">
     </head>
     <body>
-        <header th:insert="fragments/header.html :: header(module='home')">...
+        <header th:insert="fragments/header.html :: header(module='home', userId=${userId})">...
         </header>
 
         <main class="bg-image">
@@ -23,11 +23,10 @@
                     </button>
                 </div>
             </div>
-
-            <script src="/resources/js/bootstrap.bundle.min.js"
-                    crossorigin="anonymous"></script>
         </main>
 
+        <script src="/resources/js/bootstrap.bundle.min.js"
+                crossorigin="anonymous"></script>
         <script src="/resources/js/header.js" crossorigin="anonymous">
         </script>
     </body>

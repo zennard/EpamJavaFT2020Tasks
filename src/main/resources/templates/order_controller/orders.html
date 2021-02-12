@@ -11,7 +11,7 @@
         <link rel="stylesheet" href="/resources/css/orders.css">
     </head>
     <body>
-        <header th:insert="fragments/header.html :: header(module='orders')">...
+        <header th:insert="fragments/header.html :: header(module='orders', userId=${userId})">...
         </header>
 
         <div class="page-container">

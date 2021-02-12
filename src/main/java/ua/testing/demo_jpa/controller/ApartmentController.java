@@ -8,12 +8,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import ua.testing.demo_jpa.auth.UserPrincipal;
 import ua.testing.demo_jpa.dto.ApartmentPageContextDTO;
 import ua.testing.demo_jpa.dto.DateDTO;
 import ua.testing.demo_jpa.dto.PageDTO;
@@ -53,7 +55,8 @@ public class ApartmentController {
                                     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startsAt,
                                     @RequestParam(value = "endsAt", required = false)
                                     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endsAt,
-                                    @PageableDefault(sort = {"id"}, size = 2) Pageable pageable) {
+                                    @PageableDefault(sort = {"id"}, size = 2) Pageable pageable,
+                                    Authentication authentication) {
         log.info("{}", startsAt);
         log.info("{}", endsAt);
 
@@ -72,6 +75,11 @@ public class ApartmentController {
                         .date(getDateDTO(startsAt, endsAt))
                         .build()
         );
+        Optional.ofNullable(authentication)
+                .ifPresent(auth -> {
+                    UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+                    model.addAttribute("userId", user.getUserId());
+                });
 
         return APARTMENTS_PAGE;
     }
@@ -107,10 +115,12 @@ public class ApartmentController {
                                    @RequestParam(value = "startsAt", required = false)
                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startsAt,
                                    @RequestParam(value = "endsAt", required = false)
-                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endsAt) {
+                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endsAt,
+                                   Authentication authentication) {
         Apartment apartment = apartmentService.getApartmentByIdAndDate(id, startsAt, endsAt);
 
         log.info("{}", apartment);
+        log.info("{}", apartment.getSchedule());
 
         ApartmentTimetable schedule = Optional.ofNullable(timeSlotId)
                 .map(tId -> apartment
@@ -128,6 +138,11 @@ public class ApartmentController {
                 LocalTime.of(checkInHours, SETTLEMENT_MINUTES)));
         model.addAttribute("userEndsAt", LocalDateTime.of(endsAt,
                 LocalTime.of(checkOutHours, SETTLEMENT_MINUTES)));
+        Optional.ofNullable(authentication)
+                .ifPresent(auth -> {
+                    UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+                    model.addAttribute("userId", user.getUserId());
+                });
 
         return APARTMENT_PAGE;
     }

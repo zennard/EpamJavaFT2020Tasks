@@ -9,10 +9,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import ua.testing.demo_jpa.dto.UserRegistrationDTO;
-import ua.testing.demo_jpa.exceptions.ApartmentNotFoundException;
-import ua.testing.demo_jpa.exceptions.DescriptionNotFoundException;
-import ua.testing.demo_jpa.exceptions.IllegalEmailException;
-import ua.testing.demo_jpa.exceptions.WrongTimetableIdException;
+import ua.testing.demo_jpa.exceptions.*;
 
 @Slf4j
 @ControllerAdvice
@@ -61,6 +58,18 @@ public class ErrorController implements org.springframework.boot.web.servlet.err
 
     @ExceptionHandler(DescriptionNotFoundException.class)
     public String descriptionNotFoundException(DescriptionNotFoundException ex) {
+        log.error(ex.getMessage());
+        return ERROR_PAGE;
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public String userNotFoundException(UserNotFoundException ex) {
+        log.error(ex.getMessage());
+        return ERROR_PAGE;
+    }
+
+    @ExceptionHandler(ForbiddenPageException.class)
+    public String forbiddenPageException(ForbiddenPageException ex) {
         log.error(ex.getMessage());
         return ERROR_PAGE;
     }

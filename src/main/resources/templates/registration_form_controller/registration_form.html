@@ -11,7 +11,7 @@
         <link rel="stylesheet" href="/resources/css/registration.css" crossorigin="anonymous">
     </head>
     <body>
-        <header th:insert="fragments/header.html :: header(module='register')">...
+        <header th:insert="fragments/header.html :: header(module='register', userId=${userId})">...
         </header>
 
         <div class="container">
@@ -119,7 +119,7 @@
                                        id="confirmPassword"
                                        th:placeholder="#{input.placeholder.confirm.password}"
                                        required
-                                       onkeyup='check();'/>
+                                       th:onkeyup="'check(\'' + #{validation.error.input.password.does.not.matches} + '\');'"/>
                                 <div class="error"
                                      id="message"
                                      role="alert">

@@ -11,7 +11,7 @@
         <link rel="stylesheet" type="text/css" href="/resources/css/login_form.css">
     </head>
     <body>
-        <header th:insert="fragments/header.html :: header(module='login')">...
+        <header th:insert="fragments/header.html :: header(module='login', userId=${userId})">...
         </header>
 
         <div class="container">
