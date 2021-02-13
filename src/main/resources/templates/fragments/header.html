@@ -44,6 +44,19 @@
                                 Orders
                             </a>
                         </li>
+                        <li class="nav-item" th:if="${#authorization.expression('hasRole(''ROLE_MANAGER'')')}">
+                            <a class="nav-link" href="#" th:href="@{/booking-requests?page=0&size=2}"
+                               th:classappend="${module == 'booking_requests' ? 'active' : ''}"
+                               th:text="navigation.section.booking.requests">
+                                Booking Requests
+                            </a>
+                        </li>
+                        <li class="nav-item" th:if="${#authorization.expression('hasRole(''ROLE_USER'')')}">
+                            <a class="nav-link" href="#" th:href="@{/booking-requests/create}"
+                               th:classappend="${module == 'booking_request_creation' ? 'active' : ''}"
+                               th:text="#{navigation.section.booking.requests.creation}">
+                            </a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#" th:href="@{/users/{id}(id=${userId})}"
                                th:classappend="${module == 'user' ? 'active' : ''}"

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,7 +36,9 @@ public class UserController {
     private final UserService userService;
     private final OrderService orderService;
 
+
     @GetMapping()
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     public String getUsersPage(Model model,
                                @PageableDefault(sort = {"id"}, size = 2) Pageable pageable,
                                Authentication authentication) {

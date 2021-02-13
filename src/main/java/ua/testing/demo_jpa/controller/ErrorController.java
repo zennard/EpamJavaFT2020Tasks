@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import ua.testing.demo_jpa.dto.UserRegistrationDTO;
 import ua.testing.demo_jpa.exceptions.*;
 
+import java.util.Arrays;
+
 @Slf4j
 @ControllerAdvice
 @Controller
@@ -19,18 +21,21 @@ public class ErrorController implements org.springframework.boot.web.servlet.err
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Object> handleRuntimeException(RuntimeException ex) {
+        log.error(Arrays.toString(ex.getStackTrace()));
         log.error(ex.getMessage());
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
     public String handleException(Exception ex) {
+        log.error(Arrays.toString(ex.getStackTrace()));
         log.error(ex.getMessage());
         return ERROR_PAGE;
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public String handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.error(Arrays.toString(ex.getStackTrace()));
         log.error(ex.getMessage());
         return ERROR_PAGE;
     }
@@ -38,6 +43,7 @@ public class ErrorController implements org.springframework.boot.web.servlet.err
     @ExceptionHandler(IllegalEmailException.class)
     public String handleIllegalEmailException(IllegalEmailException ex,
                                               Model model) {
+        log.error(Arrays.toString(ex.getStackTrace()));
         log.error(ex.getMessage());
         model.addAttribute("error", "email");
         model.addAttribute("user", new UserRegistrationDTO());
@@ -46,30 +52,35 @@ public class ErrorController implements org.springframework.boot.web.servlet.err
 
     @ExceptionHandler(ApartmentNotFoundException.class)
     public String handleApartmentNotFoundException(ApartmentNotFoundException ex) {
+        log.error(Arrays.toString(ex.getStackTrace()));
         log.error(ex.getMessage());
         return ERROR_PAGE;
     }
 
     @ExceptionHandler(WrongTimetableIdException.class)
     public String wrongTimetableIdException(WrongTimetableIdException ex) {
+        log.error(Arrays.toString(ex.getStackTrace()));
         log.error(ex.getMessage());
         return ERROR_PAGE;
     }
 
     @ExceptionHandler(DescriptionNotFoundException.class)
     public String descriptionNotFoundException(DescriptionNotFoundException ex) {
+        log.error(Arrays.toString(ex.getStackTrace()));
         log.error(ex.getMessage());
         return ERROR_PAGE;
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     public String userNotFoundException(UserNotFoundException ex) {
+        log.error(Arrays.toString(ex.getStackTrace()));
         log.error(ex.getMessage());
         return ERROR_PAGE;
     }
 
     @ExceptionHandler(ForbiddenPageException.class)
     public String forbiddenPageException(ForbiddenPageException ex) {
+        log.error(Arrays.toString(ex.getStackTrace()));
         log.error(ex.getMessage());
         return ERROR_PAGE;
     }

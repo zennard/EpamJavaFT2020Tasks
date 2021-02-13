@@ -31,8 +31,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                     "/register", "/login", "/logout", "/",
                     "/apartments/**", "/apartments**", "/error**")
                 .permitAll()
-            .antMatchers("/users")
-                .access("hasRole('ROLE_MANAGER')")
             .anyRequest()
                 .authenticated()
             .and()

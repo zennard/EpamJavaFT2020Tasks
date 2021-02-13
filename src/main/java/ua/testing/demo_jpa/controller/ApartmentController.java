@@ -37,7 +37,7 @@ public class ApartmentController {
     private static final String APARTMENTS_PAGE = "apartment_controller/apartments.html";
     private static final String APARTMENT_PAGE = "apartment_controller/apartment.html";
     private static final int SETTLEMENT_MINUTES = 0;
-    public static final int DEFAULT_DAYS_OFFSET = 3;
+    private static final int DEFAULT_DAYS_OFFSET = 3;
     private final ApartmentService apartmentService;
     @Value("${apartment.check.in.time}")
     private Integer checkInHours;
