@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>User booking requests</title>
+        <link rel="stylesheet" href="/resources/css/bootstrap.min.css"
+              crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+              integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
+              crossorigin="anonymous">
+        <link rel="stylesheet" href="/resources/css/booking_requests.css">
+    </head>
+    <body>
+        <header th:insert="fragments/header.html :: header(module='user', userId=${userId})">...
+        </header>
+
+        <div class="page-container">
+            <main class="container-md">
+                <table class="table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col" th:text="#{booking.requests.label.id}">
+                            </th>
+                            <th scope="col" th:text="#{booking.requests.label.date}">
+                            </th>
+                            <th scope="col" th:text="#{booking.requests.label.check.in}">
+                            </th>
+                            <th scope="col" th:text="#{booking.requests.label.check.out}">
+                            </th>
+                            <th scope="col" th:text="#{booking.requests.label.status}">
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody th:with="format=${#locale.toString().equals('ua')} ? 'dd-MM-yyyy HH:mm' : 'MM-dd-yyyy HH:mm'">
+                        <tr th:if="${requests.empty}">
+                            <td colspan="6" th:text="#{booking.requests.label.empty}"> No orders Available</td>
+                        </tr>
+                        <tr th:each="req : ${requests}">
+                            <th scope="row">
+                                    <span th:text="${req.getId()}">
+                                    </span>
+                            </th>
+                            <td>
+                                    <span th:text="${#temporals.format(req.getRequestDate(), format)}">
+                                    </span>
+                            </td>
+                            <td>
+                                    <span th:text="${#temporals.format(req.getStartsAt(), format)}">
+                                    </span>
+                            </td>
+                            <td>
+                                    <span th:text="${#temporals.format(req.getEndsAt(), format)}">
+                                    </span>
+                            </td>
+                            <td>
+                                    <span th:text="${T(ua.testing.demo_jpa.util.Internationalization).getMessage(req.getRequestStatus())}">
+                                    </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </main>
+
+            <div class="container-sm" th:insert="fragments/pager.html :: pager(${page})">...
+            </div>
+        </div>
+
+        <script src="/resources/js/jquery-3.5.1.min.js"></script>
+        <script src="/resources/js/bootstrap.bundle.min.js"
+                crossorigin="anonymous"></script>
+        <script src="/resources/js/header.js" crossorigin="anonymous">
+        </script>
+    </body>
+</html>

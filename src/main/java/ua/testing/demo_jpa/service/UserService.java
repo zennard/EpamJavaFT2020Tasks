@@ -42,6 +42,17 @@ public class UserService {
                         .build());
     }
 
+    public Optional<UserProfileDTO> findUserById(Long id) {
+        return userRepository.findById(id)
+                .map(u -> UserProfileDTO.builder()
+                        .id(u.getId())
+                        .email(u.getEmail())
+                        .firstName(u.getFirstName())
+                        .lastName(u.getLastName())
+                        .role(u.getRole())
+                        .build());
+    }
+
     public void saveNewUser(UserRegistrationDTO userRegDTO) {
         try {
             User user = User.builder()

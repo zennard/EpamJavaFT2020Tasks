@@ -96,6 +96,13 @@
                             <div class="container-sm justify-content-center"
                                  th:insert="fragments/pager.html :: pager(${page})">...
                             </div>
+
+                            <nav class="container-sm justify-content-center"
+                                 th:if="${#authorization.expression('hasRole(''ROLE_USER'')')}">
+                                <a th:href="@{/users/{id}/booking-requests(id=${user.id}, page=${0}, size=${2})}"
+                                   th:text="#{user.links.booking.requests}">
+                                </a>
+                            </nav>
                         </div>
                     </div>
                 </div>

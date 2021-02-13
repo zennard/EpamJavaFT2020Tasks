@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Booking request</title>
+        <link rel="stylesheet" href="/resources/css/bootstrap.min.css"
+              crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+              integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
+              crossorigin="anonymous">
+        <link rel="stylesheet" href="/resources/css/booking_request.css">
+    </head>
+    <body>
+        <header th:insert="fragments/header.html :: header(module='booking_requests', userId=${userId})">...
+        </header>
+
+        <div class="page-container"
+             th:with="format=${#locale.toString().equals('ua')} ? 'dd-MM-yyyy HH:mm' : 'MM-dd-yyyy HH:mm'">
+            <main class="container-md">
+                <div class="container-sm">
+                    <div class="row">
+                        <p class="col-sm-6" th:text="#{booking.request.label.check.in}">
+                        </p>
+                        <p class="col-sm-6" th:text="${#temporals.format(bookingRequest.getStartsAt(), format)}">
+                        </p>
+                    </div>
+                    <div class="row">
+                        <p class="col-sm-6" th:text="#{booking.request.label.check.out}">
+                        </p>
+                        <p class="col-sm-6" th:text="${#temporals.format(bookingRequest.getEndsAt(), format)}">
+                        </p>
+                    </div>
+                    <div class="row">
+                        <p class="col-sm-6" th:text="#{booking.request.label.date}">
+                        </p>
+                        <p class="col-sm-6" th:text="${#temporals.format(bookingRequest.getRequestDate(), format)}">
+                        </p>
+                    </div>
+                </div>
+
+                <table class="table">
+                    <caption style="caption-side: top;" th:text="#{booking.request.caption.request.items}">
+                    </caption>
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col" th:text="#{booking.request.label.beds.count}">
+                            </th>
+                            <th scope="col" th:text="#{booking.request.label.type}">
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr th:each="item : ${bookingRequest.getRequestItems()}">
+                            <td>
+                                <span th:text="${item.getBedsCount()}">
+                                </span>
+                            </td>
+                            <td>
+                                <span th:text="${T(ua.testing.demo_jpa.util.Internationalization).getMessage(item.getType())}">
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <table class="table" style="margin-top: 5px" id="apartmentsTable">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col"></th>
+                            <th scope="col" th:text="#{apartments.label.apartment.id}">
+                            </th>
+                            <th scope="col" th:text="#{apartments.label.check.in}">
+                            </th>
+                            <th scope="col" th:text="#{apartments.label.check.out}">
+                            </th>
+                            <th scope="col" th:text="#{apartments.label.type}">
+                            </th>
+                            <th scope="col" th:text="#{apartments.label.beds.count}">
+                            </th>
+                            <th scope="col" th:text="#{apartments.label.price}">
+                            </th>
+                            <th scope="col" th:text="#{apartments.label.status}">
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody th:if="${apartments.empty}">
+                        <tr>
+                            <td colspan="8" th:text="#{apartments.label.empty}">
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody>
+                        <th:block th:each="a : ${apartments}">
+                            <th:block th:each="time_slot : ${a.getSchedule()}">
+                                <tr style="vertical-align: middle;">
+                                    <td>
+                                        <input class="form-check-input" type="checkbox" value=""
+                                               name="checkBoxList" onChange="saveChoice()"
+                                               th:attr="data-apartment-id=${a.getId()}">
+                                    </td>
+                                    <th scope="row">
+                                            <span th:text="${a.id}">
+                                            </span>
+                                    </th>
+                                    <td>
+                                            <span th:text="${#temporals.format(time_slot.getStartsAt(), format)}">
+                                            </span>
+                                    </td>
+                                    <td>
+                                            <span th:text="${#temporals.format(time_slot.getEndsAt(), format)}">
+                                            </span>
+                                    </td>
+                                    <td>
+                                            <span th:text="${T(ua.testing.demo_jpa.util.Internationalization).getMessage(a.getType())}">
+                                            </span>
+                                    </td>
+                                    <td>
+                                        <span th:text="${a.getBedsCount()}">
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span th:text="${a.getPrice()}">
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span th:text="${T(ua.testing.demo_jpa.util.Internationalization).getMessage(time_slot.getStatus())}">
+                                        </span>
+                                    </td>
+                                </tr>
+                            </th:block>
+                        </th:block>
+                    </tbody>
+                </table>
+            </main>
+
+            <div class="container-sm" th:insert="fragments/pager.html :: pager(${page})">...
+            </div>
+
+            <div class="container-sm d-flex justify-content-center">
+                <form th:method="POST" th:action="@{/booking-requests/update/{id}(id=${bookingRequest.getId()},
+                startsAt=${bookingRequest.getStartsAt()}, endsAt=${bookingRequest.getEndsAt()},
+                 bookingStatus=${'CLOSED'}, userId=${bookingRequest.getUserId()})}"
+                      name="submitForm">
+                    <input type="button" class="btn btn-success" onclick="onSubmit()"
+                           th:value="#{booking.request.btn.submit}"/>
+                </form>
+                <form th:method="POST"
+                      th:action="@{/app/booking-requests/update/{id}(id=${bookingRequest.getId()},
+                       bookingStatus=${'CANCELED'}, userId=${bookingRequest.getUserId()})}">
+                    <input type="submit" class="btn btn-danger" th:value="#{booking.request.btn.cancel}"/>
+                </form>
+            </div>
+        </div>
+
+        <script src="/resources/js/jquery-3.5.1.min.js">
+        </script>
+        <script src="/resources/js/bootstrap.bundle.min.js"
+                crossorigin="anonymous"></script>
+        <script src="/resources/js/header.js" crossorigin="anonymous">
+        </script>
+        <script src="/resources/js/booking_request.js" crossorigin="anonymous">
+        </script>
+    </body>
+</html>

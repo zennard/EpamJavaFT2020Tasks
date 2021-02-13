@@ -47,7 +47,7 @@
                         <li class="nav-item" th:if="${#authorization.expression('hasRole(''ROLE_MANAGER'')')}">
                             <a class="nav-link" href="#" th:href="@{/booking-requests?page=0&size=2}"
                                th:classappend="${module == 'booking_requests' ? 'active' : ''}"
-                               th:text="navigation.section.booking.requests">
+                               th:text="#{navigation.section.booking.requests}">
                                 Booking Requests
                             </a>
                         </li>
