@@ -14,6 +14,8 @@ import ua.testing.demo_jpa.entity.RequestStatus;
 public interface BookingRequestRepository extends JpaRepository<BookingRequest, Long> {
     Page<BookingRequest> findAllByRequestStatus(RequestStatus requestStatus, Pageable pageable);
 
+    Page<BookingRequest> findAllByUserId(Long userId, Pageable pageable);
+
     @Modifying
     @Query("UPDATE BookingRequest r" +
             " SET r.requestStatus = :#{#bookingRequestUpdateDTO.status} " +

@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta charset="UTF-8">
-        <title>Booking requests</title>
+        <title>User booking requests</title>
         <link rel="stylesheet" href="/resources/css/bootstrap.min.css"
               crossorigin="anonymous">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
@@ -11,7 +11,7 @@
         <link rel="stylesheet" href="/resources/css/booking_requests.css">
     </head>
     <body>
-        <header th:insert="fragments/header.html :: header(module='booking_requests', userId=${userId})">...
+        <header th:insert="fragments/header.html :: header(module='user', userId=${userId})">...
         </header>
 
         <div class="page-container">
@@ -20,8 +20,6 @@
                     <thead class="thead-dark">
                         <tr>
                             <th scope="col" th:text="#{booking.requests.label.id}">
-                            </th>
-                            <th scope="col" th:text="#{booking.requests.label.user.id}">
                             </th>
                             <th scope="col" th:text="#{booking.requests.label.date}">
                             </th>
@@ -36,17 +34,13 @@
 
                     <tbody th:with="format=${#locale.toString().equals('ua')} ? 'dd-MM-yyyy HH:mm' : 'MM-dd-yyyy HH:mm'">
                         <tr th:if="${requests.empty}">
-                            <td colspan="6" th:text="#{booking.requests.label.empty}"> No requests Available</td>
+                            <td colspan="6" th:text="#{booking.requests.label.empty}"> No orders Available</td>
                         </tr>
                         <tr th:each="req : ${requests}">
                             <th scope="row">
                                     <span th:text="${req.getId()}">
                                     </span>
                             </th>
-                            <td>
-                                    <span th:text="${req.getUserId()}">
-                                    </span>
-                            </td>
                             <td>
                                     <span th:text="${#temporals.format(req.getRequestDate(), format)}">
                                     </span>
@@ -62,13 +56,6 @@
                             <td>
                                     <span th:text="${T(ua.testing.demo_jpa.util.Internationalization).getMessage(req.getRequestStatus())}">
                                     </span>
-                            </td>
-                            <td>
-                                <form th:method="GET"
-                                      th:action="@{/booking-requests/{id}(id=${req.id})}">
-                                    <input type="submit" class="btn btn-success"
-                                           th:value="#{booking.requests.buttons.visit}"/>
-                                </form>
                             </td>
                         </tr>
                     </tbody>

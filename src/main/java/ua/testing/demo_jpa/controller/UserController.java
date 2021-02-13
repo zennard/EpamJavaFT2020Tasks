@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ua.testing.demo_jpa.auth.UserPrincipal;
+import ua.testing.demo_jpa.dto.BookingRequestDTO;
 import ua.testing.demo_jpa.dto.PageDTO;
 import ua.testing.demo_jpa.dto.UserOrderDTO;
 import ua.testing.demo_jpa.dto.UserProfileDTO;
 import ua.testing.demo_jpa.entity.User;
 import ua.testing.demo_jpa.exceptions.ForbiddenPageException;
 import ua.testing.demo_jpa.exceptions.UserNotFoundException;
+import ua.testing.demo_jpa.service.BookingRequestService;
 import ua.testing.demo_jpa.service.OrderService;
 import ua.testing.demo_jpa.service.UserService;
 
@@ -31,10 +33,12 @@ import java.util.Optional;
 public class UserController {
     private static final String USERS_PAGE = "user_controller/users.html";
     private static final String USER_PAGE = "user_controller/user.html";
+    private static final String USER_BOOKING_REQUESTS_PAGE = "user_controller/user_booking_requests.html";
     private static final String FORBIDDEN_PAGE_EXCEPTION_MESSAGE = "Cannot access this page";
     private static final String USER_NOT_FOUND_EXCEPTION_MESSAGE = "Cannot find user with this email!";
     private final UserService userService;
     private final OrderService orderService;
+    private final BookingRequestService bookingRequestService;
 
 
     @GetMapping()
@@ -77,6 +81,38 @@ public class UserController {
         model.addAttribute("page", getOrdersPageDTO(orderPage, orderPage.getPageable(), id));
 
         return USER_PAGE;
+    }
+
+    @GetMapping("/{id}/booking-requests")
+    public String getUserRequestsPage(@PathVariable Long id,
+                                      @PageableDefault(sort = {"id"}, size = 2) Pageable pageable,
+                                      Model model,
+                                      Authentication authentication) {
+        Page<BookingRequestDTO> requestsPage = bookingRequestService.getAllBookingRequestsByUserId(pageable, id);
+
+        model.addAttribute("requests", requestsPage.getContent());
+        model.addAttribute("page", getBookingRequestsPageDTO(requestsPage, id));
+        Optional.ofNullable(authentication)
+                .ifPresent(auth -> {
+                    UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+                    model.addAttribute("userId", user.getUserId());
+                });
+        return USER_BOOKING_REQUESTS_PAGE;
+    }
+
+    private PageDTO getBookingRequestsPageDTO(Page<BookingRequestDTO> requestsPage, Long id) {
+        log.info("{}", requestsPage.getTotalPages());
+        Pageable currentPageable = requestsPage.getPageable();
+        return PageDTO.builder()
+                .limit(currentPageable.getPageSize())
+                .prevPage(currentPageable.getPageNumber() - 1)
+                .nextPage(currentPageable.getPageNumber() + 1)
+                .currentPage(currentPageable.getPageNumber() + 1)
+                .totalPages(requestsPage.getTotalPages())
+                .hasPrev(requestsPage.hasPrevious())
+                .hasNext(requestsPage.hasNext())
+                .url(String.format("/app/users/%s/booking-requests", id))
+                .build();
     }
 
     private PageDTO getOrdersPageDTO(Page<UserOrderDTO> orderPage, Pageable currentPageable, Long userId) {

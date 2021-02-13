@@ -97,6 +97,17 @@ public class BookingRequestService {
                 requestsPage.getTotalPages());
     }
 
+    public Page<BookingRequestDTO> getAllBookingRequestsByUserId(Pageable pageable, Long id) {
+        Page<BookingRequest> requestsPage = bookingRequestRepository.findAllByUserId(id, pageable);
+
+        List<BookingRequestDTO> requestsDTO = requestsPage.getContent().stream()
+                .map(this::getBookingRequestDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(requestsDTO, requestsPage.getPageable(),
+                requestsPage.getTotalPages());
+    }
+
     private BookingRequestDTO getBookingRequestDTO(BookingRequest request) {
         List<BookingRequestItem> items;
         items = bookingRequestItemRepository.findAllByBookingRequestId(request.getId());
