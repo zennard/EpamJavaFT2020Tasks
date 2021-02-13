@@ -16,6 +16,7 @@ import ua.testing.demo_jpa.repository.OrderItemRepository;
 import ua.testing.demo_jpa.repository.OrderRepository;
 import ua.testing.demo_jpa.repository.UserRepository;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -173,6 +174,7 @@ public class OrderService {
         }
 
         List<OrderItemDTO> itemsDTO = getOrderItemDTOS(items);
+        BigDecimal totalPrice = getItemsTotalPrice(itemsDTO);
 
         return OrderDTO.builder()
                 .id(o.getId())
@@ -181,6 +183,7 @@ public class OrderService {
                 .startsAt(items.get(0).getStartsAt())
                 .endsAt(items.get(0).getEndsAt())
                 .orderItems(itemsDTO)
+                .totalPrice(totalPrice)
                 .build();
     }
 
@@ -191,6 +194,7 @@ public class OrderService {
         }
 
         List<OrderItemDTO> itemsDTO = getOrderItemDTOS(items);
+        BigDecimal totalPrice = getItemsTotalPrice(itemsDTO);
 
         return UserOrderDTO.builder()
                 .id(o.getId())
@@ -199,7 +203,15 @@ public class OrderService {
                 .startsAt(items.get(0).getStartsAt())
                 .endsAt(items.get(0).getEndsAt())
                 .orderItems(itemsDTO)
+                .totalPrice(totalPrice)
                 .build();
+    }
+
+    private BigDecimal getItemsTotalPrice(List<OrderItemDTO> itemsDTO) {
+        return itemsDTO.stream()
+                .map(OrderItemDTO::getPrice)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
     }
 
     private List<OrderItemDTO> getOrderItemDTOS(List<OrderItem> items) {

@@ -32,16 +32,24 @@
                         <tr th:if="${orders.empty}">
                             <td colspan="7" th:text="#{orders.label.empty}"> No orders Available</td>
                         </tr>
-                        <tr th:each="o : ${orders}">
+                        <tr th:each="o : ${orders}" th:with="apartmentIds=${''}, totalPrice=${0}">
                             <th scope="row"><span th:text="${o.id}"/></th>
                             <td><span th:text="${o.userEmail}"/></td>
                             <td><span th:text="${#temporals.format(o.orderDate, format)}"/></td>
                             <td><span th:text="${#temporals.format(o.startsAt, format)}"/></td>
                             <td><span th:text="${#temporals.format(o.endsAt, format)}"/></td>
-                            <th:block th:each="item : ${o.getOrderItems()}">
-                                <td><span th:text="${item.apartmentId}"/></td>
-                                <td><span th:text="${item.price}"/></td>
-                            </th:block>
+
+                            <td>
+                                <span>
+                                    <th:block th:each="item, iterStat : ${o.getOrderItems()}">
+                                        <th:block th:text="${item.getApartmentId()}">
+                                        </th:block>
+                                        <th:block th:if="${!iterStat.last}" th:text="${' ,'}">
+                                        </th:block>
+                                    </th:block>
+                                </span>
+                            </td>
+                            <td><span th:text="${o.totalPrice}"/></td>
                             <td>
                                 <form th:method="PATCH"
                                       th:action="@{/orders/{id}(id=${o.id}, orderStatus=${'APPROVED'})}">

@@ -3,6 +3,7 @@ package ua.testing.demo_jpa.dto;
 import lombok.*;
 import ua.testing.demo_jpa.entity.OrderStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,4 +20,5 @@ public class UserOrderDTO {
     private LocalDateTime endsAt;
     private OrderStatus status;
     private List<OrderItemDTO> orderItems;
+    private BigDecimal totalPrice;
 }

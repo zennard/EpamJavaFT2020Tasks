@@ -64,10 +64,17 @@
                                         <td><span
                                                 th:text="${T(ua.testing.demo_jpa.util.Internationalization).getMessage(o.getStatus())}"/>
                                         </td>
-                                        <th:block th:each="item : ${o.getOrderItems()}">
-                                            <td><span th:text="${item.apartmentId}"/></td>
-                                            <td><span th:text="${item.price}"/></td>
-                                        </th:block>
+                                        <td>
+                                            <span>
+                                                <th:block th:each="item, iterStat : ${o.getOrderItems()}">
+                                                    <th:block th:text="${item.getApartmentId()}">
+                                                    </th:block>
+                                                    <th:block th:if="${!iterStat.last}" th:text="${' ,'}">
+                                                    </th:block>
+                                                </th:block>
+                                            </span>
+                                        </td>
+                                        <td><span th:text="${o.totalPrice}"/></td>
                                         <td th:if="${o.status.toString() == 'APPROVED'}">
                                             <form th:method="PATCH"
                                                   th:action="@{/orders/{id}(id=${o.id}, orderStatus=${'CONFIRMED'})}">
