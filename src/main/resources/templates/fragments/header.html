@@ -6,7 +6,7 @@
     </head>
     <body>
         <nav class="navbar navbar navbar-expand-lg navbar-inverse navbar-fixed-top navbar-dark bg-dark"
-             th:fragment="header(module)">
+             th:fragment="header(module, userId)">
             <div class="container-fluid">
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapse"
                         aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,19 +18,58 @@
                         <li class="nav-item">
                             <a class="nav-link" href="#" th:href="@{/}"
                                th:classappend="${module == 'home' ? 'active' : ''}"
-                               th:text="#{navigation.section.home}">
+                               th:text="#{navigation.section.home}"
+                               th:if="${#authorization.expression('!isAuthenticated()')}">
                                 Home
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="#" th:href="@{/apartments?page=0&size=2}"
+                               th:classappend="${module == 'apartments' ? 'active' : ''}"
+                               th:text="#{navigation.section.apartments}">
+                                Apartments
+                            </a>
+                        </li>
+                        <li class="nav-item" th:if="${#authorization.expression('hasRole(''ROLE_MANAGER'')')}">
                             <a class="nav-link" href="#" th:href="@{/users?page=0&size=2}"
                                th:classappend="${module == 'users' ? 'active' : ''}"
                                th:text="#{navigation.section.users}">
                                 Users
                             </a>
                         </li>
+                        <li class="nav-item" th:if="${#authorization.expression('hasRole(''ROLE_MANAGER'')')}">
+                            <a class="nav-link" href="#" th:href="@{/orders?page=0&size=2}"
+                               th:classappend="${module == 'orders' ? 'active' : ''}"
+                               th:text="#{navigation.section.orders}">
+                                Orders
+                            </a>
+                        </li>
+                        <li class="nav-item" th:if="${#authorization.expression('hasRole(''ROLE_MANAGER'')')}">
+                            <a class="nav-link" href="#" th:href="@{/booking-requests?page=0&size=2}"
+                               th:classappend="${module == 'booking_requests' ? 'active' : ''}"
+                               th:text="navigation.section.booking.requests">
+                                Booking Requests
+                            </a>
+                        </li>
+                        <li class="nav-item" th:if="${#authorization.expression('hasRole(''ROLE_USER'')')}">
+                            <a class="nav-link" href="#" th:href="@{/booking-requests/create}"
+                               th:classappend="${module == 'booking_request_creation' ? 'active' : ''}"
+                               th:text="#{navigation.section.booking.requests.creation}">
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" th:href="@{/users/{id}(id=${userId})}"
+                               th:classappend="${module == 'user' ? 'active' : ''}"
+                               th:text="#{navigation.section.user}"
+                               th:if="${#authorization.expression('isAuthenticated()')}">
+                                Profile
+                            </a>
+                        </li>
                     </ul>
-                    <ul class="navbar-nav navbar-right">
+                </div>
+
+                <div class="navbar-collapse collapse nav-pills justify-content-end" style="padding-right:30px;">
+                    <ul class="navbar-nav">
                         <li class="nav-item" th:if="${#authorization.expression('!isAuthenticated()')}">
                             <a class="nav-link" href="/login" th:href="@{/login}"
                                th:classappend="${module == 'login' ? 'active' : ''}"
@@ -55,15 +94,17 @@
                             <form style="visibility: hidden" id="form" method="post" action="#"
                                   th:action="@{/logout}"></form>
                         </li>
-                        <li>
+                        <li style="align-self: center; padding-left: 5px;">
                             <div class="dropdown">
                                 <button class="btn btn-outline-light btn dropdown-toggle" type="button"
                                         id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"
                                         th:text="#{lang.change}">
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <li><a class="dropdown-item" href="?lang=en" th:text="#{lang.en}"></a></li>
-                                    <li><a class="dropdown-item" href="?lang=ua" th:text="#{lang.ua}"></a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="addLangAttribute('en')"
+                                           th:text="#{lang.en}"></a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="addLangAttribute('ua')"
+                                           th:text="#{lang.ua}"></a></li>
                                 </ul>
                             </div>
                         </li>

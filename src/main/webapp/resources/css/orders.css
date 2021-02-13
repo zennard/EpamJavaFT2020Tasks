@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css?family=Numans');
+
+html, body {
+    background-image: url('https://blog.stingray.com/sites/blog/files/2019-02/architecture-chair-contemporary-1001965.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    margin: 0;
+    font-family: 'Numans', sans-serif;
+}
+
+.page-container {
+    background-color: rgba(243, 239, 240, 0.9);
+    padding-bottom: 1px;
+}

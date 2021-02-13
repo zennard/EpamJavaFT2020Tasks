@@ -5,19 +5,21 @@
         <title>Pager</title>
     </head>
     <body>
-        <nav aria-label="pager" th:fragment="pager(prevPage, nextPage, limit)">
+        <nav aria-label="pager" th:fragment="pager(page)">
             <ul class="pagination">
-                <li class="page-item" th:classappend="${hasPrev}? active: disabled">
-                    <a class="page-link" th:href="@{'/users/' + '?page=' + ${prevPage} + '&size=' + ${limit}}"
+                <li class="page-item" th:classappend="${page.hasPrev}? active: disabled">
+                    <a id="prevPageLink" class="page-link"
+                       th:href="@{${page.url} + '?page=' + ${page.prevPage} + '&size=' + ${page.limit}}"
                        tabindex="-1" th:text="#{pager.prev.page}">Previous</a>
                 </li>
                 <li class="page-item active">
                     <a class="page-link" href="#">
-                        <span th:text="${currentPage + '/' + totalPages}"></span>
+                        <span th:text="${page.currentPage + '/' + page.totalPages}"></span>
                     </a>
                 </li>
-                <li class="page-item" th:classappend="${hasNext}? active: disabled">
-                    <a class="page-link" th:href="@{'/users/' + '?page=' + ${nextPage} + '&size=' + ${limit}}"
+                <li class="page-item" th:classappend="${page.hasNext}? active: disabled">
+                    <a id="nextPageLink" class="page-link"
+                       th:href="@{${page.url} + '?page=' + ${page.nextPage} + '&size=' + ${page.limit}}"
                        th:text="#{pager.next.page}">Next</a>
                 </li>
             </ul>

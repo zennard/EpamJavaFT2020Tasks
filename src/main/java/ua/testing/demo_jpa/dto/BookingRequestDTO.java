@@ -12,8 +12,8 @@ import java.util.List;
 @Builder
 @ToString
 public class BookingRequestDTO {
-    Long userId;
-    LocalDateTime startsAt;
-    LocalDateTime endsAt;
-    List<BookingRequestItemDTO> requestItems;
+    private Long userId;
+    private LocalDateTime startsAt;
+    private LocalDateTime endsAt;
+    private List<BookingRequestItemDTO> requestItems;
 }

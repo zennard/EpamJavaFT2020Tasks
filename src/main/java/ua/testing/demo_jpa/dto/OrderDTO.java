@@ -2,6 +2,7 @@ package ua.testing.demo_jpa.dto;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -12,8 +13,11 @@ import java.util.List;
 @Builder
 @ToString
 public class OrderDTO {
-    Long userId;
-    LocalDateTime startsAt;
-    LocalDateTime endsAt;
-    List<OrderItemDTO> orderItems;
+    private Long id;
+    private String userEmail;
+    private LocalDateTime orderDate;
+    private LocalDateTime startsAt;
+    private LocalDateTime endsAt;
+    private List<OrderItemDTO> orderItems;
+    private BigDecimal totalPrice;
 }

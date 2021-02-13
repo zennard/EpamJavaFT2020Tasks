@@ -25,7 +25,7 @@ public class BookingRequestItem {
     private BookingRequest bookingRequest;
 
     @Column(name = "beds_count", nullable = false)
-    private Integer beds_count;
+    private Integer bedsCount;
 
     @Column(name = "type")
     @Enumerated(EnumType.STRING)

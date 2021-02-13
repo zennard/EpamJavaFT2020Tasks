@@ -1,55 +1,74 @@
 package ua.testing.demo_jpa.service;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import ua.testing.demo_jpa.entity.RoomStatus;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import ua.testing.demo_jpa.dto.OrderDTO;
+import ua.testing.demo_jpa.entity.*;
+import ua.testing.demo_jpa.repository.OrderItemRepository;
+import ua.testing.demo_jpa.repository.OrderRepository;
 
-import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
-@SpringBootTest
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
-    @Autowired
-    private OrderService service;
-    public static final LocalDateTime TEST_DATE = LocalDateTime.of(2021, 1, 15, 13, 0);
+    @Mock
+    private OrderRepository orderRepository;
+    @Mock
+    private OrderItemRepository orderItemRepository;
+
+    @InjectMocks
+    private OrderService orderService;
+
 
     @Test
-    void shouldSaveNewRecord() {
-        LocalDateTime date = TEST_DATE;
-        ApartmentTimetableDTO schedule = ApartmentTimetableDTO
-                .builder()
-                .apartmentId(3L)
-                .startsAt(date)
-                .endsAt(date.plusDays(2))
-                .status(RoomStatus.PAID)
-                .build();
+    void shouldGetAllNewOrders() {
+        //given
+        int expectedNumber = 1;
+        int expectedOrderDtoId = 11;
+        when(orderItemRepository.findAllByOrderId(any()))
+                .thenReturn(givenOrderItems());
+        when(orderRepository.findAllByOrderStatus(any(), any()))
+                .thenReturn(givenOrders());
+        //when
+        Page<OrderDTO> orders = orderService.getAllNewOrders(mock(Pageable.class));
+        //then
+        assertThat(orders.getTotalElements()).isEqualTo(expectedNumber);
 
-        service.saveNewRecord(schedule);
+        OrderDTO orderDTO = orders.getContent().get(0);
+        assertThat(orderDTO)
+                .hasFieldOrPropertyWithValue("id", 11L);
     }
 
-    @Test
-    void shouldDeleteExistingRecordWithTimetableDTO() {
-        LocalDateTime date = TEST_DATE;
-        ApartmentTimetableDTO schedule = ApartmentTimetableDTO
-                .builder()
-                .apartmentId(3L)
-                .startsAt(date)
-                .endsAt(date.plusDays(2))
-                .status(RoomStatus.PAID)
-                .build();
-        service.deleteRecord(schedule);
+    private List<OrderItem> givenOrderItems() {
+        return Collections.singletonList(
+                OrderItem.builder()
+                        .id(123L)
+                        .apartment(mock(Apartment.class))
+                        .build()
+        );
     }
 
-    @Test
-    void shouldDeleteExistingRecordWithTimetableDeletionDTO() {
-        LocalDateTime date = TEST_DATE;
-        ApartmentTimetableDeletionDTO schedule = ApartmentTimetableDeletionDTO
-                .builder()
-                .apartmentTimetableId(7L)
-                .apartmentId(3L)
-                .startsAt(date)
-                .endsAt(date.plusDays(2))
-                .build();
-        service.deleteRecord(schedule);
+    private Page<Order> givenOrders() {
+        return new PageImpl<>(Arrays.asList(
+                Order.builder()
+                        .id(11L)
+                        .orderStatus(OrderStatus.NEW)
+                        .user(mock(User.class))
+                        .build()
+
+        ));
     }
 }

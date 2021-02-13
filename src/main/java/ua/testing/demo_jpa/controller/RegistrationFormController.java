@@ -44,6 +44,6 @@ public class RegistrationFormController {
         }
         userService.saveNewUser(user);
         log.info("{}", user);
-        return "redirect:/users?page=0&size=2";
+        return "redirect:/login";
     }
 }

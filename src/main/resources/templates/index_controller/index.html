@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
+        <title>Home</title>
+        <link rel="stylesheet" href="/resources/css/bootstrap.min.css"
+              crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+              integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
+              crossorigin="anonymous">
+        <link rel="stylesheet" href="/resources/css/index.css" crossorigin="anonymous">
+    </head>
+    <body>
+        <header th:insert="fragments/header.html :: header(module='home', userId=${userId})">...
+        </header>
+
+        <main class="bg-image">
+            <div class="welcome-block">
+                <h2 class="welcome-text" th:text="#{greeting}"></h2>
+                <div class="d-grid login-btn col-12">
+                    <button class="btn btn-primary btn-lg" onclick="location.href = '/login';"
+                            th:text="#{button.login}">
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <script src="/resources/js/bootstrap.bundle.min.js"
+                crossorigin="anonymous"></script>
+        <script src="/resources/js/header.js" crossorigin="anonymous">
+        </script>
+    </body>
+</html>

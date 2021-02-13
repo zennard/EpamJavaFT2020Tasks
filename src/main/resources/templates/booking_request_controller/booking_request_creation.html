@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Booking request creation</title>
+        <link rel="stylesheet" href="/resources/css/bootstrap.min.css"
+              crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+              integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
+              crossorigin="anonymous">
+        <link rel="stylesheet" href="/resources/css/datepicker.css">
+        <link rel="stylesheet" href="/resources/css/booking_request_creation.css">
+    </head>
+    <body>
+        <header th:insert="fragments/header.html :: header(module='booking_request_creation', userId=${userId})">...
+        </header>
+
+        <div class="page-container">
+            <main class="container-md pt-2"
+                  th:with="format=${#locale.toString().equals('ua')} ? 'DD-MM-YYYY' : 'MM-DD-YYYY'">
+                <form name="requestForm" th:method="POST" th:action="@{/booking-requests}" onsubmit="return false;">
+                    <input type="hidden" name="type" th:value="#{roomtype.standard}" data-type="STANDARD">
+                    <input type="hidden" name="type" th:value="#{roomtype.suite}" data-type="SUITE">
+                    <input type="hidden" name="type" th:value="#{roomtype.deluxe}" data-type="DELUXE">
+                    <input type="hidden" name="type" th:value="#{roomtype.president}" data-type="PRESIDENT">
+                    <label for="checkIn" th:text="#{datepicker.check.in}">
+                    </label>
+                    <input class="date-input" type="date" id="checkIn" name="startsAt"
+                           th:attr="data-date-format=${format}, data-date=''"
+                           value=""
+                           required/>
+                    <br/>
+                    <label for="checkOut" th:text="#{datepicker.check.out}">
+                    </label>
+                    <input class="date-input" type="date" id="checkOut" name="endsAt"
+                           th:attr="data-date-format=${format}, data-date=''"
+                           value=""
+                           required/>
+                    <br/>
+                    <input id="submitBtn" class="btn btn-primary mt-2" type="submit"
+                           th:value="#{booking.request.creation.btn.submit}"/>
+                </form>
+                <button class="btn"
+                        th:attr="onclick=|addInputRow('#{booking.request.label.beds.count}', '#{booking.request.label.type}')|">
+                    <em class="far fa-plus-square fa-2x"></em>
+                </button>
+                <button class="btn" onclick="removeLastInputRow();">
+                    <em class="far fa-minus-square fa-2x"></em>
+                </button>
+                <div id="error-panel">
+                    <div class="no-demands-error invisible">
+                        <p class="alert alert-danger" th:text="#{booking.request.creation.error.no.demands}">
+                        </p>
+                    </div>
+                    <div class="fields-empty-error invisible">
+                        <p class="alert alert-danger" th:text="#{booking.request.creation.error.fields.empty}">
+                        </p>
+                    </div>
+                    <div class="unnecessary-fields-error invisible">
+                        <p class="alert alert-danger" th:text="#{booking.request.creation.error.unnecessary.fields}">
+                        </p>
+                    </div>
+                    <div class="duplicate-fields-error invisible">
+                        <p class="alert alert-danger" th:text="#{booking.request.creation.error.duplicate.fields}">
+                        </p>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <script src="/resources/js/jquery-3.5.1.min.js"></script>
+        <script src="/resources/js/bootstrap.bundle.min.js"
+                crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js" crossorigin="anonymous">
+        </script>
+        <script src="/resources/js/datepicker.js">
+        </script>
+        <script src="/resources/js/header.js" crossorigin="anonymous">
+        </script>
+        <script src="/resources/js/booking_request_creation.js">
+        </script>
+    </body>
+</html>

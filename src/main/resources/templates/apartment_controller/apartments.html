@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Apartments</title>
+        <link rel="stylesheet" href="/resources/css/bootstrap.min.css"
+              crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+              integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
+              crossorigin="anonymous">
+        <link rel="stylesheet" href="/resources/css/apartments.css">
+        <link rel="stylesheet" href="/resources/css/datepicker.css">
+    </head>
+    <body>
+        <header th:insert="fragments/header.html :: header(module='apartments', userId=${userId})">...
+        </header>
+
+        <form name="sortForm" method="GET">
+            <input type="hidden" id="sortTypeValue" name="sort">
+            <input type="hidden" id="sortStartsAt" name="startsAt">
+            <input type="hidden" id="sortEndsAt" name="endsAt">
+        </form>
+
+        <div class="page-container">
+            <div class="container-sm" th:insert="fragments/datepicker.html :: datePicker(${pageContext.date})">...
+            </div>
+
+            <main class="container-md" th:with="apartments = ${pageContext.apartments}">
+                <table class="table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col" class="active-sort-tab" style="background-color: black;">
+                                <a class="sort-link" onclick="onSortButtonClick()" data-type="id"
+                                   th:text="#{apartments.label.apartment.id}">
+                                </a>
+                            </th>
+                            <th scope="col" th:text="#{apartments.label.check.in}">StartsAt</th>
+                            <th scope="col" th:text="#{apartments.label.check.out}">EndsAt</th>
+                            <th scope="col" class="active-sort-tab" style="background-color: black;">
+                                <a class="sort-link" onclick="onSortButtonClick()" data-type="type"
+                                   th:text="#{apartments.label.type}">
+                                </a>
+                            </th>
+                            <th scope="col" class="active-sort-tab" style="background-color: black;">
+                                <a class="sort-link" onclick="onSortButtonClick()" data-type="beds_count"
+                                   th:text="#{apartments.label.beds.count}">
+                                </a>
+                            </th>
+                            <th scope="col" class="active-sort-tab" style="background-color: black;">
+                                <a class="sort-link" onclick="onSortButtonClick()" data-type="price"
+                                   th:text="#{apartments.label.price}">
+                                </a>
+                            </th>
+                            <th scope="col" class="active-sort-tab" style="background-color: black;">
+                                <a class="sort-link" onclick="onSortButtonClick()" data-type="status"
+                                   th:text="#{apartments.label.status}">
+                                </a>
+                            </th>
+                            <th scope="col" th:text="#{apartments.label.book}">Book this apartment
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody th:if="${apartments.empty}">
+                        <tr>
+                            <td colspan="7" th:text="#{apartments.label.empty}"> No apartments Available</td>
+                        </tr>
+                    </tbody>
+                    <tbody>
+                        <th:block th:each="a : ${apartments}">
+                            <th:block th:each="time_slot : ${a.getSchedule()}"
+                                      th:with="format=${#locale.toString().equals('ua')} ? 'dd-MM-yyyy HH:mm' : 'MM-dd-yyyy HH:mm'">
+                                <tr>
+                                    <th scope="row"><span th:text="${a.id}"/></th>
+                                    <td><span
+                                            th:text="${#temporals.format(time_slot.getStartsAt(), format)}"/>
+                                    </td>
+                                    <td><span
+                                            th:text="${#temporals.format(time_slot.getEndsAt(), format)}"/>
+                                    </td>
+                                    <td>
+                                        <span th:text="${T(ua.testing.demo_jpa.util.Internationalization).getMessage(a.getType())}"/>
+                                    </td>
+                                    <td><span th:text="${a.getBedsCount()}"/></td>
+                                    <td><span th:text="${a.getPrice()}"></span></td>
+                                    <td>
+                                        <span th:text="${T(ua.testing.demo_jpa.util.Internationalization).getMessage(time_slot.getStatus())}"/>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-success"
+                                                th:text="#{apartments.buttons.book}"
+                                                th:action="@{/apartments/{id}(id=${a.id}, slotId=${time_slot.getId()})}"
+                                                onclick="onApartmentClick()">
+                                            Success
+                                        </button>
+                                    </td>
+                                </tr>
+                            </th:block>
+                        </th:block>
+                    </tbody>
+                </table>
+            </main>
+
+            <div class="container-sm"
+                 th:insert="fragments/pager.html :: pager(${pageContext.page})">...
+            </div>
+        </div>
+
+        <script src="/resources/js/jquery-3.5.1.min.js"></script>
+        <script src="/resources/js/bootstrap.bundle.min.js"
+                crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js" crossorigin="anonymous">
+        </script>
+        <script src="/resources/js/datepicker.js">
+        </script>
+        <script src="/resources/js/pager.js">
+        </script>
+        <script src="/resources/js/apartments.js">
+        </script>
+        <script src="/resources/js/header.js" crossorigin="anonymous">
+        </script>
+    </body>
+</html>

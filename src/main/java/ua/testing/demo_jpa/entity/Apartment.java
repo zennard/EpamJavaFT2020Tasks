@@ -25,14 +25,16 @@ public class Apartment {
     private BigDecimal price;
 
     @Column(name = "beds_count", nullable = false)
-    private Integer beds_count;
+    private Integer bedsCount;
 
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
     private RoomType type;
 
+    private String description;
+
     @Column(name = "is_available")
-    private boolean isAvailable;
+    private Boolean isAvailable;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "apartment")
     @ToString.Exclude

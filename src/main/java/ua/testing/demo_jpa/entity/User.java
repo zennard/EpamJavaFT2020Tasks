@@ -1,6 +1,7 @@
 package ua.testing.demo_jpa.entity;
 
 import lombok.*;
+import ua.testing.demo_jpa.auth.RoleType;
 
 import javax.persistence.*;
 
@@ -19,7 +20,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
-    
+
     @Column(name = "first_name", nullable = false)
     private String firstName;
 

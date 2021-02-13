@@ -10,6 +10,6 @@ import ua.testing.demo_jpa.entity.RoomType;
 @Builder
 @ToString
 public class BookingRequestItemDTO {
-    Integer bedsCount;
-    RoomType type;
+    private Integer bedsCount;
+    private RoomType type;
 }

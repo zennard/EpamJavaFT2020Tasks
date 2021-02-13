@@ -34,7 +34,11 @@ public class BookingRequest {
     @Column(name = "ends_at", nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime endsAt;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "booking_request")
+    @Column(name = "request_status")
+    @Enumerated(EnumType.STRING)
+    private RequestStatus requestStatus;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "bookingRequest")
     @ToString.Exclude
     private List<BookingRequestItem> requestItems;
 

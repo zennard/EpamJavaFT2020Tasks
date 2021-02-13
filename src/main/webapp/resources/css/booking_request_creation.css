@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css?family=Numans');
+
+html, body {
+    background-image: url('https://pbs.twimg.com/media/Eb2BvFdXsAA3OOF.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100%;
+    margin: 0;
+    font-family: 'Numans', sans-serif;
+}
+
+
+.page-container {
+    background-color: rgba(243, 239, 240, 0.9);
+    padding-bottom: 1px;
+    margin: auto;
+    width: 70%;
+    min-height: 100%;
+    text-align: center;
+}
+
+.input-row {
+    margin: 5px 0;
+}
+
+.invisible {
+    display: none;
+}

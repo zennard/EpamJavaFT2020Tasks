@@ -1,13 +1,11 @@
-package ua.testing.demo_jpa.entity;
+package ua.testing.demo_jpa.auth;
 
 import org.springframework.security.core.GrantedAuthority;
 
 public enum RoleType implements GrantedAuthority {
-    ROLE_SUPERADMIN,
     ROLE_ADMIN,
     ROLE_USER,
-    ROLE_USER_WEB;
-
+    ROLE_MANAGER;
 
     @Override
     public String getAuthority() {
