@@ -2,6 +2,7 @@ package ua.testing.demo_jpa.entity;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import ua.testing.demo_jpa.auth.RoleType;
 
 import java.util.ArrayList;
 import java.util.Collection;
