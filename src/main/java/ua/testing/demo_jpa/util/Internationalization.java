@@ -32,6 +32,13 @@ public class Internationalization {
         return getMessage(key);
     }
 
+    public static String getMessageFromException(Throwable exception) {
+        //@TODO transform exception class name to have dot format
+        log.info(exception.getClass().getSimpleName().toLowerCase());
+        String key = exception.getClass().getSimpleName().toLowerCase();
+        return getMessage(key);
+    }
+
     public static Locale getCurrentLocale() {
         return LocaleContextHolder.getLocale();
     }
