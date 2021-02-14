@@ -38,9 +38,9 @@ public class ApartmentService {
     private final ApartmentDescriptionRepository apartmentDescriptionRepository;
     //@TODO move to some constants class
     @Value("${apartment.check.in.time}")
-    private Integer checkInHours;
+    private int checkInHours;
     @Value("${apartment.check.out.time}")
-    private Integer checkOutHours;
+    private int checkOutHours;
     private static final int SETTLEMENT_MINUTES = 0;
     private static final Set<String> VALID_COLUMNS_FOR_ORDER_BY = Collections.unmodifiableSet(
             (Set<? extends String>) Stream
@@ -61,7 +61,7 @@ public class ApartmentService {
         pageable = encodeSortParameter(pageable);
         log.info("{}", pageable.getSort());
         Page<ApartmentTimeSlotView> apartmentsPage = apartmentRepository.findAllAvailableByDate(checkIn, checkOut, pageable);
-
+        
         List<Apartment> parsedApartments = new ArrayList<>();
         for (ApartmentTimeSlotView slot : apartmentsPage.getContent()) {
             Apartment a = ApartmentMapper.map(slot);

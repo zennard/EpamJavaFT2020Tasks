@@ -102,7 +102,7 @@ public class OrderService {
         return order.getId();
     }
 
-    public boolean recordExists(LocalDateTime startsAt, LocalDateTime endsAt, Long apartmentId) {
+    private boolean recordExists(LocalDateTime startsAt, LocalDateTime endsAt, Long apartmentId) {
         List<ApartmentTimetable> schedule = apartmentTimetableRepository.findAllByApartmentIdAndDate(
                 startsAt, endsAt, apartmentId);
         return !schedule.isEmpty();
