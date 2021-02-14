@@ -38,9 +38,9 @@ public class ApartmentService {
     private final ApartmentDescriptionRepository apartmentDescriptionRepository;
     //@TODO move to some constants class
     @Value("${apartment.check.in.time}")
-    private Integer checkInHours;
+    private int checkInHours;
     @Value("${apartment.check.out.time}")
-    private Integer checkOutHours;
+    private int checkOutHours;
     private static final int SETTLEMENT_MINUTES = 0;
     private static final Set<String> VALID_COLUMNS_FOR_ORDER_BY = Collections.unmodifiableSet(
             (Set<? extends String>) Stream
@@ -61,6 +61,44 @@ public class ApartmentService {
         pageable = encodeSortParameter(pageable);
         log.info("{}", pageable.getSort());
         Page<ApartmentTimeSlotView> apartmentsPage = apartmentRepository.findAllAvailableByDate(checkIn, checkOut, pageable);
+        
+        List<Apartment> parsedApartments = new ArrayList<>();
+        for (ApartmentTimeSlotView slot : apartmentsPage.getContent()) {
+            Apartment a = ApartmentMapper.map(slot);
+
+            updateEmptySchedule(a, checkIn, checkOut);
+
+            parsedApartments.add(a);
+        }
+        log.info("total: {}", apartmentsPage.getTotalElements());
+        log.info("total: {}", apartmentsPage.getTotalPages());
+
+        return new PageImpl<>(parsedApartments, apartmentsPage.getPageable(),
+                apartmentsPage.getTotalElements());
+    }
+
+    public Page<Apartment> getAllAvailableApartmentsByDate(Pageable pageable, VacationDateDTO vacationDateDTO,
+                                                           ApartmentCriteriaDTO apartmentCriteriaDTO) {
+        LocalDate startsAt = vacationDateDTO.getStartsAt();
+        LocalDate endsAt = vacationDateDTO.getEndsAt();
+
+        if (endsAt.isBefore(startsAt)) throw new IllegalDateException("Check out time cannot go before check-in!");
+
+        LocalDateTime checkIn = LocalDateTime.of(startsAt, LocalTime.of(checkInHours, SETTLEMENT_MINUTES));
+        LocalDateTime checkOut = LocalDateTime.of(endsAt, LocalTime.of(checkOutHours, SETTLEMENT_MINUTES));
+
+        List<String> typesStringList = apartmentCriteriaDTO.getTypes().stream()
+                .map(Object::toString)
+                .collect(Collectors.toList());
+
+        log.info("{}", apartmentCriteriaDTO.getTypes());
+        log.info(String.format("'%s'", apartmentCriteriaDTO.getStatus().toString()));
+
+        Page<ApartmentTimeSlotView> apartmentsPage = apartmentRepository.findAllAvailableByDate(checkIn, checkOut, pageable,
+                typesStringList,
+                apartmentCriteriaDTO.getStatus().toString());
+
+        log.info("{}", apartmentsPage.getContent());
 
         List<Apartment> parsedApartments = new ArrayList<>();
         for (ApartmentTimeSlotView slot : apartmentsPage.getContent()) {
@@ -70,6 +108,7 @@ public class ApartmentService {
 
             parsedApartments.add(a);
         }
+
         log.info("total: {}", apartmentsPage.getTotalElements());
         log.info("total: {}", apartmentsPage.getTotalPages());
 
