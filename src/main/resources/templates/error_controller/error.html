@@ -1,10 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta charset="UTF-8">
         <title>Error</title>
+        <link rel="stylesheet" href="/resources/css/bootstrap.min.css"
+              crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+              integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
+              crossorigin="anonymous">
     </head>
     <body>
-        <p>Some error happened!</p>
+        <header th:insert="fragments/header.html :: header(module='apartments', userId=${userId})">...
+        </header>
+
+        <main class="container-fluid d-flex justify-content-center">
+            <h2 th:text="${T(ua.testing.demo_jpa.util.Internationalization).getMessageFromException(exception)}"
+                th:if="${exception != null}">
+            </h2>
+            <h2 th:text="#{exception}"
+                th:if="${exception == null}">
+            </h2>
+        </main>
+
+        <script src="/resources/js/jquery-3.5.1.min.js"></script>
+        <script src="/resources/js/bootstrap.bundle.min.js"
+                crossorigin="anonymous"></script>
+        <script src="/resources/js/header.js" crossorigin="anonymous">
+        </script>
     </body>
 </html>

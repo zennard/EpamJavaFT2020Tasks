@@ -116,45 +116,6 @@ public class ApartmentService {
                 apartmentsPage.getTotalElements());
     }
 
-    public Page<Apartment> getAllAvailableApartmentsByDate(Pageable pageable, VacationDateDTO vacationDateDTO,
-                                                           ApartmentCriteriaDTO apartmentCriteriaDTO) {
-        LocalDate startsAt = vacationDateDTO.getStartsAt();
-        LocalDate endsAt = vacationDateDTO.getEndsAt();
-
-        if (endsAt.isBefore(startsAt)) throw new IllegalDateException("Check out time cannot go before check-in!");
-
-        LocalDateTime checkIn = LocalDateTime.of(startsAt, LocalTime.of(checkInHours, SETTLEMENT_MINUTES));
-        LocalDateTime checkOut = LocalDateTime.of(endsAt, LocalTime.of(checkOutHours, SETTLEMENT_MINUTES));
-
-        List<String> typesStringList = apartmentCriteriaDTO.getTypes().stream()
-                .map(Object::toString)
-                .collect(Collectors.toList());
-
-        log.info("{}", apartmentCriteriaDTO.getTypes());
-        log.info(String.format("'%s'", apartmentCriteriaDTO.getStatus().toString()));
-
-        Page<ApartmentTimeSlotView> apartmentsPage = apartmentRepository.findAllAvailableByDate(checkIn, checkOut, pageable,
-                typesStringList,
-                apartmentCriteriaDTO.getStatus().toString());
-
-        log.info("{}", apartmentsPage.getContent());
-
-        List<Apartment> parsedApartments = new ArrayList<>();
-        for (ApartmentTimeSlotView slot : apartmentsPage.getContent()) {
-            Apartment a = ApartmentMapper.map(slot);
-
-            updateEmptySchedule(a, checkIn, checkOut);
-
-            parsedApartments.add(a);
-        }
-
-        log.info("total: {}", apartmentsPage.getTotalElements());
-        log.info("total: {}", apartmentsPage.getTotalPages());
-
-        return new PageImpl<>(parsedApartments, apartmentsPage.getPageable(),
-                apartmentsPage.getTotalElements());
-    }
-
     private Pageable encodeSortParameter(Pageable pageable) {
         return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), JpaSort.unsafe(
                 pageable.getSort()
